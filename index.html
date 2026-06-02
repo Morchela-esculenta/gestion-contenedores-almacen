@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestión de Contenedores Vacíos · Almacén</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --z1:#2e7d32;--z1m:#4caf50;--z1l:#e8f5e9;
+  --zb:#1565c0;--zbm:#1e88e5;--zbl:#e3f2fd;
+  --z2:#e65100;--z2m:#f57c00;--z2l:#fff3e0;
+  --zc:#b71c1c;--zcm:#d32f2f;--zcl:#ffebee;
+  --bg:#f0f2f5;--card:#fff;--text:#1a1a2e;--muted:#78909c;--border:#e0e0e0
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:13px;min-height:100vh}
+/* ── Header ── */
+.hdr{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 2px 12px rgba(0,0,0,.35);print-color-adjust:exact}
+.hdr-title{font-size:1.15rem;font-weight:700;letter-spacing:.3px}
+.hdr-sub{font-size:.7rem;opacity:.55;margin-top:2px}
+.hdr-ts{font-size:.68rem;opacity:.45;white-space:nowrap}
+.btn-print{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);padding:7px 14px;border-radius:6px;cursor:pointer;font-size:.78rem;font-weight:600;white-space:nowrap;transition:background .2s}
+.btn-print:hover{background:rgba(255,255,255,.22)}
+/* ── Input bar ── */
+.ibar{background:var(--card);border-bottom:2px solid var(--border);padding:10px 20px;display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap}
+.igroup{display:flex;flex-direction:column;align-items:center;gap:2px}
+.igroup label{font-size:.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.igroup small{font-size:.6rem;color:#bbb;margin-top:1px}
+.igroup input{width:64px;padding:5px 4px;text-align:center;border:2px solid var(--border);border-radius:6px;font-size:.9rem;font-weight:600;color:var(--text);transition:border-color .2s,box-shadow .2s;-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+.igroup input:focus{outline:none;box-shadow:0 0 0 3px rgba(76,175,80,.15)}
+.btn-calc{background:linear-gradient(135deg,#4caf50,#388e3c);color:#fff;border:none;padding:0 22px;height:34px;border-radius:6px;cursor:pointer;font-size:.88rem;font-weight:700;letter-spacing:.4px;box-shadow:0 2px 8px rgba(76,175,80,.4);transition:transform .1s,box-shadow .2s;margin-left:6px;align-self:flex-end}
+.btn-calc:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(76,175,80,.5)}
+.btn-calc:active{transform:translateY(0)}
+/* ── Layout ── */
+.main{display:flex;gap:14px;padding:14px;align-items:flex-start}
+/* ── Visual panel ── */
+.visual{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
+.zblock{border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.09);border:1px solid rgba(0,0,0,.06)}
+.zhdr{padding:7px 12px;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:.75rem;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.zhdr .zname{font-weight:700;font-size:.82rem;letter-spacing:.4px;white-space:nowrap}
+.zhdr .zmeta{opacity:.82;white-space:nowrap}
+.z-zona1 .zhdr{background:linear-gradient(90deg,var(--z1),#388e3c)}
+.z-baterias .zhdr{background:linear-gradient(90deg,var(--zb),#1976d2)}
+.z-zona2 .zhdr{background:linear-gradient(90deg,var(--z2),#f57c00)}
+.z-calle .zhdr{background:linear-gradient(90deg,var(--zc),#e53935)}
+.zrows{background:#fff}
+.ritem{display:flex;align-items:center;padding:2px 10px;gap:6px;border-bottom:1px solid #f5f5f5;min-height:26px}
+.ritem:last-child{border-bottom:none}
+.ritem:hover{background:#fafafa}
+.rn{width:26px;font-size:.65rem;font-weight:700;color:#bbb;flex-shrink:0;text-align:right}
+.rref{width:50px;font-size:.72rem;font-weight:700;flex-shrink:0;text-align:center;padding:1px 3px;border-radius:4px}
+.rcells{display:flex;gap:2px;flex-shrink:0}
+.cell{height:16px;border-radius:2px}
+.cell.empty{background:#ececec}
+.rbar{flex:1;height:7px;background:#f0f0f0;border-radius:4px;overflow:hidden;min-width:30px}
+.rbar-f{height:100%;border-radius:4px;transition:width .4s ease}
+.z-zona1 .rbar-f{background:linear-gradient(90deg,var(--z1m),#81c784)}
+.z-baterias .rbar-f{background:linear-gradient(90deg,var(--zbm),#64b5f6)}
+.z-zona2 .rbar-f{background:linear-gradient(90deg,var(--z2m),#ffb74d)}
+.z-calle .rbar-f{background:linear-gradient(90deg,var(--zcm),#ef9a9a)}
+.rpct{width:32px;text-align:right;font-size:.68rem;font-weight:700;color:#555;flex-shrink:0}
+.rcnt{width:68px;text-align:right;font-size:.65rem;color:#aaa;flex-shrink:0;font-variant-numeric:tabular-nums}
+/* ── Stats panel ── */
+.stats{width:275px;flex-shrink:0;display:flex;flex-direction:column;gap:10px;position:sticky;top:14px;max-height:calc(100vh - 80px);overflow-y:auto}
+.card{background:var(--card);border-radius:8px;padding:13px;box-shadow:0 2px 8px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.05)}
+.ctitle{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);padding-bottom:8px;border-bottom:1px solid #f0f0f0;margin-bottom:10px}
+/* base ref card */
+.bref{display:flex;gap:10px;align-items:flex-start}
+.bref-num{font-size:2.2rem;font-weight:900;color:var(--z1);line-height:1}
+.bref-specs{font-size:.73rem;color:#555;line-height:1.65}
+.bref-specs strong{color:var(--text)}
+/* zone stat rows */
+.zs{display:flex;align-items:center;padding:5px 0;border-bottom:1px solid #f5f5f5;gap:6px}
+.zs:last-child{border-bottom:none}
+.zsdot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.zsname{flex:1;font-size:.76rem;color:#555}
+.zsnums{font-size:.72rem;font-weight:600;color:#333;font-variant-numeric:tabular-nums;white-space:nowrap}
+.zsbar{width:52px;height:5px;background:#eee;border-radius:3px;overflow:hidden;flex-shrink:0}
+.zsbar-f{height:100%;border-radius:3px}
+.zspct{width:34px;text-align:right;font-size:.73rem;font-weight:700}
+/* summary grid */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.si{background:#f8f9fa;border-radius:6px;padding:9px 6px;text-align:center}
+.si-val{font-size:1.35rem;font-weight:800;line-height:1}
+.si-lbl{font-size:.6rem;color:var(--muted);text-transform:uppercase;margin-top:3px}
+/* ref table */
+.rtbl{width:100%;border-collapse:collapse;font-size:.73rem}
+.rtbl th{background:#f5f5f5;padding:5px 6px;text-align:left;font-size:.62rem;color:#aaa;text-transform:uppercase;letter-spacing:.4px}
+.rtbl td{padding:5px 6px;border-bottom:1px solid #f5f5f5;vertical-align:middle}
+.rtbl tr:last-child td{border-bottom:none}
+.rchip{display:inline-block;padding:1px 6px;border-radius:4px;font-weight:700;font-size:.7rem;color:#fff}
+/* observations */
+.obs{display:flex;gap:7px;padding:7px 9px;border-radius:6px;font-size:.73rem;line-height:1.45;margin-bottom:6px;align-items:flex-start}
+.obs:last-child{margin-bottom:0}
+.obs-error{background:#ffebee;color:#b71c1c}
+.obs-warn{background:#fff8e1;color:#6d4c00}
+.obs-ok{background:#e8f5e9;color:#1b5e20}
+.obs-info{background:#e3f2fd;color:#0d47a1}
+.obs-ico{flex-shrink:0;font-size:.9rem}
+/* ── Buttons add/sub ── */
+.btn-add{background:linear-gradient(135deg,#43a047,#2e7d32);color:#fff;border:none;padding:0 16px;height:34px;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:700;box-shadow:0 2px 6px rgba(76,175,80,.3);transition:transform .1s,box-shadow .2s;margin-left:4px;align-self:flex-end}
+.btn-sub{background:linear-gradient(135deg,#e53935,#c62828);color:#fff;border:none;padding:0 16px;height:34px;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:700;box-shadow:0 2px 6px rgba(229,57,53,.3);transition:transform .1s,box-shadow .2s;margin-left:4px;align-self:flex-end}
+.btn-add:hover,.btn-sub:hover{transform:translateY(-1px)}
+.btn-add:active,.btn-sub:active{transform:translateY(0)}
+/* ── Modal ── */
+.moverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;align-items:center;justify-content:center}
+.moverlay.open{display:flex}
+.mcard{background:#fff;border-radius:12px;padding:22px;width:390px;max-width:93vw;box-shadow:0 12px 40px rgba(0,0,0,.3);animation:mslide .18s ease}
+@keyframes mslide{from{transform:translateY(-12px);opacity:0}to{transform:translateY(0);opacity:1}}
+.mfld label{font-size:.68rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px}
+.mfld input,.mfld select{width:100%;padding:8px 10px;border:2px solid #e0e0e0;border-radius:6px;font-size:.95rem;font-weight:600;color:var(--text);transition:border-color .2s;-moz-appearance:textfield}
+.mfld input:focus,.mfld select:focus{outline:none;border-color:#4caf50;box-shadow:0 0 0 3px rgba(76,175,80,.12)}
+.mhint{font-size:.68rem;color:#aaa;margin-top:3px}
+.minfo{background:#f8f9fa;border-radius:7px;padding:9px 11px;font-size:.75rem;border-left:3px solid #ccc}
+.minfo strong{color:var(--text)}
+/* print */
+@media print{
+  body{background:#fff;font-size:11px}
+  .btn-print,.ibar,.hdr-ts{display:none!important}
+  .main{padding:6px;gap:10px}
+  .stats{position:static;max-height:none;overflow:visible;width:230px}
+  .card,.zblock{box-shadow:none;border:1px solid #ddd}
+  .hdr{box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div>
+    <div class="hdr-title">Gestión de Contenedores Vacíos</div>
+    <div class="hdr-sub">Planificación de almacén · Zonas de picking y calle</div>
+  </div>
+  <div id="ts" class="hdr-ts"></div>
+  <button class="btn-print" onclick="window.print()">🖨 Imprimir / PDF</button>
+</header>
+
+<div class="ibar" id="ibar">
+  <div id="ifields" style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end"></div>
+  <button class="btn-calc" onclick="calculate()">▶ Calcular</button>
+  <button class="btn-add" onclick="openModal('add')">+ Añadir</button>
+  <button class="btn-sub" onclick="openModal('sub')">− Restar</button>
+</div>
+
+<!-- Modal añadir / restar -->
+<div class="moverlay" id="moverlay" onclick="if(event.target===this)closeModal()">
+  <div class="mcard">
+    <div id="mtitle"></div>
+    <div id="mbody"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;padding-top:12px;border-top:1px solid #f0f0f0">
+      <button onclick="closeModal()"
+        style="padding:8px 18px;border:1px solid #e0e0e0;border-radius:6px;background:#f5f5f5;cursor:pointer;font-size:.85rem;font-weight:600;color:#555">
+        Cancelar
+      </button>
+      <button id="m-ok" onclick="modalConfirm()" disabled
+        style="padding:8px 22px;border:none;border-radius:6px;color:#fff;cursor:pointer;font-size:.85rem;font-weight:700;opacity:.5;transition:opacity .2s">
+        Confirmar
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="visual" id="visual"></div>
+  <div class="stats" id="stats"></div>
+</div>
+
+<script>
+'use strict';
+
+const REFS = {
+  '6429':  {h:5,  t:'L', label:'Grande', color:'#1b5e20'},
+  '4329':  {h:5,  t:'L', label:'Grande', color:'#2e7d32'},
+  '6415':  {h:5,  t:'L', label:'Grande', color:'#388e3c'},
+  '2632':  {h:12, t:'L', label:'Grande', color:'#0d47a1'},
+  '2072':  {h:12, t:'L', label:'Grande', color:'#1565c0'},
+  '2032':  {h:12, t:'L', label:'Grande', color:'#1976d2'},
+  '2671':  {h:12, t:'S', label:'Pequeño', color:'#bf360c'},
+  '2071':  {h:12, t:'S', label:'Pequeño', color:'#e65100'},
+  '50563': {h:12, t:'S', label:'Pequeño', color:'#f57f17'},
+};
+
+const ORDER = ['6429','4329','6415','2632','2072','2032','2671','2071','50563'];
+
+const ZONES = [
+  {id:'zona1',    name:'Zona 1',   sr:1,  n:15, vb:13, lb:13, sb:21, dot:'#4caf50', cls:'z-zona1'},
+  {id:'baterias', name:'Baterías', sr:16, n:6,  vb:6,  lb:6,  sb:10, dot:'#1e88e5', cls:'z-baterias'},
+  {id:'zona2',    name:'Zona 2',   sr:22, n:14, vb:5,  lb:5,  sb:9,  dot:'#f57c00', cls:'z-zona2'},
+  {id:'calle',    name:'Calle',    sr:36, n:6,  vb:4,  lb:4,  sb:7,  dot:'#e53935', cls:'z-calle'},
+];
+
+// Visual display top→bottom
+const VORDER = ['calle','zona2','baterias','zona1'];
+
+let rows = [];
+
+function gz(id){ return ZONES.find(z=>z.id===id); }
+
+function rowCap(zid, ref){
+  const z=gz(zid), r=REFS[ref];
+  return (r.t==='L'?z.lb:z.sb)*r.h;
+}
+
+function initRows(){
+  rows=[null];
+  for(const z of ZONES)
+    for(let i=0;i<z.n;i++)
+      rows.push({rn:z.sr+i, zone:z.id, ref:null, cnt:0, cap:0});
+}
+
+// Build inputs
+(function(){
+  const c=document.getElementById('ifields');
+  for(const ref of ORDER){
+    const r=REFS[ref];
+    const d=document.createElement('div');
+    d.className='igroup';
+    d.innerHTML=`
+      <label>${ref}</label>
+      <small>h:${r.h} · ${r.t==='L'?'Gde':'Peq'}</small>
+      <input type="number" id="i_${ref}" min="0" value="0"
+        oninput="this.style.borderColor=parseInt(this.value||0)>0?'${r.color}':'#e0e0e0'">
+    `;
+    c.appendChild(d);
+  }
+})();
+
+function calculate(){
+  initRows();
+  const stock={}, overflow={};
+  for(const ref of ORDER) stock[ref]=Math.max(0,parseInt(document.getElementById('i_'+ref).value)||0);
+
+  for(const ref of ORDER){
+    let rem=stock[ref];
+    if(!rem) continue;
+    for(let i=1;i<=41&&rem>0;i++){
+      const row=rows[i];
+      if(row.ref!==null&&row.ref!==ref) continue;
+      const cap=rowCap(row.zone,ref);
+      if(row.ref===null){row.ref=ref;row.cap=cap;row.cnt=0;}
+      const space=row.cap-row.cnt;
+      const place=Math.min(rem,space);
+      row.cnt+=place; rem-=place;
+    }
+    if(rem>0) overflow[ref]=rem;
+  }
+
+  const now=new Date();
+  document.getElementById('ts').textContent=
+    `Calculado: ${now.toLocaleDateString('es-ES')} ${now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}`;
+
+  renderVisual();
+  renderStats(stock,overflow);
+}
+
+function renderVisual(){
+  const panel=document.getElementById('visual');
+  panel.innerHTML='';
+
+  for(const zid of VORDER){
+    const z=gz(zid);
+    const zr=rows.filter(r=>r&&r.zone===zid);
+    const totCap=zr.reduce((s,r)=>s+(r.cap>0?r.cap:z.lb*5),0);
+    const totUsed=zr.reduce((s,r)=>s+r.cnt,0);
+    const pct=totCap>0?Math.round(totUsed/totCap*100):0;
+    const free=zr.filter(r=>r.ref===null).length;
+    const er=z.sr+z.n-1;
+
+    const block=document.createElement('div');
+    block.className=`zblock ${z.cls}`;
+
+    let rhtml='';
+    for(const row of zr){
+      const rpct=row.cap>0?Math.round(row.cnt/row.cap*100):0;
+      const rd=row.ref?REFS[row.ref]:null;
+      const filled=row.cap>0?Math.round(row.cnt/row.cap*z.vb):0;
+
+      let cells='';
+      const cw=Math.max(10,Math.floor((z.vb<=6?16:z.vb<=10?14:12)));
+      for(let c=0;c<z.vb;c++){
+        const f=c<filled;
+        cells+=`<div class="cell ${f?'':'empty'}" style="width:${cw}px;${f&&rd?'background:'+rd.color:''}"></div>`;
+      }
+
+      const rstyle=rd?`color:#fff;background:${rd.color};`:'color:#ccc;';
+      rhtml+=`
+        <div class="ritem">
+          <div class="rn">F${row.rn}</div>
+          <div class="rref" style="${rstyle}">${row.ref||'—'}</div>
+          <div class="rcells">${cells}</div>
+          <div class="rbar"><div class="rbar-f" style="width:${rpct}%"></div></div>
+          <div class="rpct">${row.ref?rpct+'%':''}</div>
+          <div class="rcnt">${row.ref?row.cnt+'/'+row.cap:''}</div>
+        </div>`;
+    }
+
+    block.innerHTML=`
+      <div class="zhdr">
+        <span class="zname">${z.name}</span>
+        <span class="zmeta">Filas ${z.sr}–${er} · ${z.vb} bases</span>
+        <span class="zmeta">${totCap>0?pct+'% ocup · '+free+' libres':free+' filas libres'}</span>
+      </div>
+      <div class="zrows">${rhtml}</div>`;
+    panel.appendChild(block);
+  }
+}
+
+function renderStats(stock,overflow){
+  const panel=document.getElementById('stats');
+  panel.innerHTML='';
+
+  // ── Card: Ref base 6429 ──────────────────────────
+  const r64=REFS['6429'];
+  const rows64=rows.filter(r=>r&&r.ref==='6429');
+  const s64=stock['6429']||0;
+  const c1=document.createElement('div');
+  c1.className='card';
+  c1.innerHTML=`
+    <div class="ctitle">Referencia base</div>
+    <div class="bref">
+      <div class="bref-num">6429</div>
+      <div class="bref-specs">
+        Altura: <strong>${r64.h} ud</strong> · Tipo: <strong>Grande</strong><br>
+        Stock introducido: <strong>${s64.toLocaleString('es-ES')}</strong><br>
+        Filas utilizadas: <strong>${rows64.length}</strong><br>
+        Cap/fila: Z1=<strong>${13*5}</strong> · Bat=<strong>${6*5}</strong> · Z2=<strong>${5*5}</strong> · C=<strong>${4*5}</strong>
+      </div>
+    </div>`;
+  panel.appendChild(c1);
+
+  // ── Card: Huecos por zona ────────────────────────
+  const c2=document.createElement('div');
+  c2.className='card';
+  let h2='<div class="ctitle">Huecos por zona</div>';
+  let gtCap=0,gtUsed=0;
+
+  for(const z of ZONES){
+    const zr=rows.filter(r=>r&&r.zone===z.id);
+    const cap=zr.reduce((s,r)=>s+(r.cap>0?r.cap:z.lb*5),0);
+    const used=zr.reduce((s,r)=>s+r.cnt,0);
+    const free=cap-used;
+    const pct=cap>0?Math.round(used/cap*100):0;
+    const pc=pct>=90?'#d32f2f':pct>=70?'#f57c00':'#4caf50';
+    gtCap+=cap; gtUsed+=used;
+    h2+=`
+      <div class="zs">
+        <div class="zsdot" style="background:${z.dot}"></div>
+        <div class="zsname">${z.name}</div>
+        <div class="zsnums">${used.toLocaleString('es-ES')} / ${cap>0?cap.toLocaleString('es-ES'):'—'}</div>
+        <div class="zsbar"><div class="zsbar-f" style="width:${pct}%;background:${z.dot}"></div></div>
+        <div class="zspct" style="color:${pc}">${cap>0?pct+'%':'—'}</div>
+      </div>`;
+  }
+  c2.innerHTML=h2;
+  panel.appendChild(c2);
+
+  // ── Card: Resumen general ────────────────────────
+  const gtPct=gtCap>0?Math.round(gtUsed/gtCap*100):0;
+  const usedR=rows.filter(r=>r&&r.ref!==null).length;
+  const c3=document.createElement('div');
+  c3.className='card';
+  c3.innerHTML=`
+    <div class="ctitle">Resumen general</div>
+    <div class="sgrid">
+      <div class="si"><div class="si-val" style="color:#2e7d32">${gtUsed.toLocaleString('es-ES')}</div><div class="si-lbl">Huecos ocupados</div></div>
+      <div class="si"><div class="si-val" style="color:#1565c0">${(gtCap-gtUsed).toLocaleString('es-ES')}</div><div class="si-lbl">Huecos libres</div></div>
+      <div class="si"><div class="si-val" style="color:#e65100">${usedR} / 41</div><div class="si-lbl">Filas usadas</div></div>
+      <div class="si"><div class="si-val" style="color:${gtPct>80?'#d32f2f':'#333'}">${gtPct}%</div><div class="si-lbl">Ocupación total</div></div>
+    </div>`;
+  panel.appendChild(c3);
+
+  // ── Card: Tabla de referencias ───────────────────
+  const active=ORDER.filter(r=>(stock[r]||0)>0);
+  if(active.length>0){
+    const c4=document.createElement('div');
+    c4.className='card';
+    let h4=`
+      <div class="ctitle">Referencias actuales</div>
+      <table class="rtbl">
+        <thead><tr><th>Ref.</th><th>Stock</th><th>Filas</th><th>Cap.</th><th>%</th></tr></thead>
+        <tbody>`;
+    for(const ref of active){
+      const rd=REFS[ref];
+      const rr=rows.filter(r=>r&&r.ref===ref);
+      const rc=rr.reduce((s,r)=>s+r.cap,0);
+      const ru=rr.reduce((s,r)=>s+r.cnt,0);
+      const rp=rc>0?Math.round(ru/rc*100):0;
+      const ov=overflow[ref]||0;
+      const pc=rp>=90?'#d32f2f':rp>=70?'#f57c00':'#2e7d32';
+      h4+=`
+        <tr>
+          <td><span class="rchip" style="background:${rd.color}">${ref}</span></td>
+          <td>${(stock[ref]).toLocaleString('es-ES')}${ov>0?`<br><small style="color:#d32f2f;font-weight:700">+${ov} exceso</small>`:''}
+          </td>
+          <td style="font-weight:600">${rr.length}</td>
+          <td>${rc.toLocaleString('es-ES')}</td>
+          <td style="font-weight:700;color:${pc}">${rp}%</td>
+        </tr>`;
+    }
+    h4+='</tbody></table>';
+    c4.innerHTML=h4;
+    panel.appendChild(c4);
+  }
+
+  // ── Card: Observaciones ──────────────────────────
+  const c5=document.createElement('div');
+  c5.className='card';
+  let h5='<div class="ctitle">Observaciones</div>';
+  const obs=[];
+
+  for(const ref of ORDER){
+    if(overflow[ref]>0)
+      obs.push({t:'error',i:'⚠️',msg:`Ref. <strong>${ref}</strong>: <strong>${overflow[ref]}</strong> unidades sin ubicación. Capacidad superada.`});
+  }
+
+  const calleUsed=rows.filter(r=>r&&r.zone==='calle'&&r.ref!==null).length;
+  if(calleUsed>0)
+    obs.push({t:'warn',i:'🟡',msg:`<strong>${calleUsed}</strong> fila(s) de Calle en uso. Última zona disponible ocupada.`});
+
+  for(const z of ZONES){
+    const zr=rows.filter(r=>r&&r.zone===z.id);
+    const cap=zr.reduce((s,r)=>s+(r.cap>0?r.cap:z.lb*5),0);
+    const used=zr.reduce((s,r)=>s+r.cnt,0);
+    if(cap>0&&used/cap>0.9)
+      obs.push({t:'warn',i:'🔴',msg:`<strong>${z.name}</strong> al <strong>${Math.round(used/cap*100)}%</strong>. Alta ocupación. Planificar rotación.`});
+  }
+
+  const refsMixed=new Set(rows.filter(r=>r&&r.ref!==null).map(r=>r.zone+'-'+r.ref));
+  if(gtUsed>0&&obs.filter(o=>o.t==='error').length===0)
+    obs.push({t:'ok',i:'✅',msg:'Distribución correcta. Sin mezcla de referencias por fila.'});
+
+  if(gtUsed===0)
+    obs.push({t:'info',i:'ℹ️',msg:'Almacén vacío. Introduce el stock de cada referencia y pulsa <strong>Calcular</strong>.'});
+  else if(gtPct<40)
+    obs.push({t:'ok',i:'✅',msg:`Almacén al <strong>${gtPct}%</strong> de capacidad asignada. Situación holgada.`});
+
+  // Filling order note
+  if(gtUsed>0)
+    obs.push({t:'info',i:'ℹ️',msg:'Orden de llenado aplicado: Zona 1 → Baterías → Zona 2 → Calle.'});
+
+  for(const o of obs)
+    h5+=`<div class="obs obs-${o.t}"><span class="obs-ico">${o.i}</span><span>${o.msg}</span></div>`;
+
+  c5.innerHTML=h5;
+  panel.appendChild(c5);
+}
+
+// ── Modal ────────────────────────────────────────────────
+let mMode = null;
+
+function openModal(mode) {
+  if (rows.length <= 1) { alert('Primero pulsa Calcular para inicializar el almacén.'); return; }
+  mMode = mode;
+  const isAdd = mode === 'add';
+  const color = isAdd ? '#2e7d32' : '#c62828';
+
+  document.getElementById('mtitle').innerHTML = `
+    <div style="font-size:1rem;font-weight:700;color:${color};margin-bottom:16px;display:flex;align-items:center;gap:8px">
+      ${isAdd ? '➕ Añadir contenedores' : '➖ Restar contenedores'}
+    </div>`;
+
+  document.getElementById('mbody').innerHTML = `
+    <div class="mfld" style="margin-bottom:10px">
+      <label>Número de fila (1 – 41)</label>
+      <input type="number" id="m-rownum" min="1" max="41" placeholder="Ej: 5"
+        oninput="updateMInfo()" style="text-align:center">
+    </div>
+    <div id="m-infobox" style="margin-bottom:10px;min-height:36px"></div>
+    <div id="m-refgroup" class="mfld" style="display:none;margin-bottom:10px">
+      <label>Referencia a introducir</label>
+      <select id="m-ref" onchange="updateMRefCap()">
+        ${ORDER.map(r=>`<option value="${r}">${r} · altura ${REFS[r].h} · ${REFS[r].label}</option>`).join('')}
+      </select>
+    </div>
+    <div id="m-qtygroup" class="mfld" style="display:none">
+      <label>Cantidad</label>
+      <input type="number" id="m-qty" min="1" placeholder="0" style="text-align:center">
+      <div class="mhint" id="m-hint"></div>
+    </div>`;
+
+  const ok = document.getElementById('m-ok');
+  ok.style.background = isAdd ? 'linear-gradient(135deg,#4caf50,#388e3c)' : 'linear-gradient(135deg,#e53935,#c62828)';
+  ok.textContent = isAdd ? 'Añadir' : 'Restar';
+  ok.disabled = true; ok.style.opacity = '.45';
+
+  document.getElementById('moverlay').classList.add('open');
+  setTimeout(() => document.getElementById('m-rownum')?.focus(), 60);
+}
+
+function closeModal() {
+  document.getElementById('moverlay').classList.remove('open');
+  mMode = null;
+}
+
+function setOk(enabled) {
+  const ok = document.getElementById('m-ok');
+  ok.disabled = !enabled; ok.style.opacity = enabled ? '1' : '.45';
+}
+
+function updateMInfo() {
+  const n = parseInt(document.getElementById('m-rownum').value);
+  const box = document.getElementById('m-infobox');
+  const rg = document.getElementById('m-refgroup');
+  const qg = document.getElementById('m-qtygroup');
+  rg.style.display = 'none'; qg.style.display = 'none'; setOk(false);
+
+  if (!n || n < 1 || n > 41) { box.innerHTML = ''; return; }
+  const row = rows[n];
+  if (!row) { box.innerHTML = ''; return; }
+
+  const z = gz(row.zone);
+  const zc = {zona1:'#4caf50',baterias:'#1e88e5',zona2:'#f57c00',calle:'#e53935'}[row.zone];
+
+  if (mMode === 'add') {
+    if (row.ref) {
+      const rd = REFS[row.ref];
+      const space = row.cap - row.cnt;
+      const pct = Math.round(row.cnt / row.cap * 100);
+      box.innerHTML = `<div class="minfo" style="border-color:${zc}">
+        <span style="background:${rd.color};color:#fff;padding:1px 6px;border-radius:3px;font-size:.7rem;font-weight:700">${row.ref}</span>
+        &nbsp;·&nbsp;<span style="color:${zc};font-weight:700">${z.name}</span><br>
+        Ocupado: <strong>${row.cnt}</strong> / ${row.cap} · Disponible: <strong style="color:${space>0?'#2e7d32':'#d32f2f'}">${space}</strong>
+      </div>`;
+      if (space <= 0) {
+        box.innerHTML += `<div style="color:#d32f2f;font-size:.72rem;margin-top:5px">⚠ Fila llena, sin espacio disponible.</div>`;
+      } else {
+        qg.style.display = 'block';
+        document.getElementById('m-qty').max = space;
+        document.getElementById('m-hint').textContent = `Máximo disponible: ${space}`;
+        setOk(true);
+      }
+    } else {
+      box.innerHTML = `<div class="minfo" style="border-color:${zc}">
+        <span style="color:${zc};font-weight:700">${z.name}</span> · Fila vacía<br>
+        <span style="color:#888">Selecciona referencia y cantidad a introducir</span>
+      </div>`;
+      rg.style.display = 'block';
+      qg.style.display = 'block';
+      updateMRefCap();
+      setOk(true);
+    }
+  } else {
+    if (!row.ref) {
+      box.innerHTML = `<div class="minfo" style="border-color:#f57c00;background:#fff3e0;color:#6d4c00">
+        Fila vacía — no hay contenedores que restar.
+      </div>`;
+    } else {
+      const rd = REFS[row.ref];
+      const pct = Math.round(row.cnt / row.cap * 100);
+      box.innerHTML = `<div class="minfo" style="border-color:${zc}">
+        <span style="background:${rd.color};color:#fff;padding:1px 6px;border-radius:3px;font-size:.7rem;font-weight:700">${row.ref}</span>
+        &nbsp;·&nbsp;<span style="color:${zc};font-weight:700">${z.name}</span><br>
+        Contenedores actuales: <strong>${row.cnt}</strong> / ${row.cap} (${pct}%)
+      </div>`;
+      qg.style.display = 'block';
+      document.getElementById('m-qty').max = row.cnt;
+      document.getElementById('m-hint').textContent = `Máximo a restar: ${row.cnt}`;
+      setOk(true);
+    }
+  }
+}
+
+function updateMRefCap() {
+  const n = parseInt(document.getElementById('m-rownum').value);
+  if (!n || n < 1 || n > 41) return;
+  const row = rows[n];
+  if (!row || row.ref) return;
+  const ref = document.getElementById('m-ref')?.value;
+  if (!ref) return;
+  const cap = rowCap(row.zone, ref);
+  document.getElementById('m-hint').textContent = `Capacidad de esta fila para ref. ${ref}: ${cap}`;
+  document.getElementById('m-qty').max = cap;
+}
+
+function modalConfirm() {
+  const n = parseInt(document.getElementById('m-rownum').value);
+  if (!n || n < 1 || n > 41) return;
+  const row = rows[n];
+  if (!row) return;
+  const qty = parseInt(document.getElementById('m-qty')?.value) || 0;
+
+  if (mMode === 'add') {
+    let ref = row.ref;
+    if (!ref) {
+      ref = document.getElementById('m-ref')?.value;
+      if (!ref) return;
+      row.ref = ref; row.cap = rowCap(row.zone, ref); row.cnt = 0;
+    }
+    if (qty <= 0) { alert('Introduce una cantidad mayor que 0.'); return; }
+    const space = row.cap - row.cnt;
+    if (qty > space) { alert(`Espacio disponible en fila ${n}: ${space}`); return; }
+    row.cnt += qty;
+  } else {
+    if (!row.ref) return;
+    if (qty <= 0) { alert('Introduce una cantidad mayor que 0.'); return; }
+    if (qty > row.cnt) { alert(`Solo hay ${row.cnt} contenedores en la fila ${n}.`); return; }
+    row.cnt -= qty;
+    if (row.cnt === 0) { row.ref = null; row.cap = 0; }
+  }
+
+  closeModal();
+  const s = stockFromRows();
+  renderVisual();
+  renderStats(s, {});
+  const now = new Date();
+  document.getElementById('ts').textContent =
+    `Actualizado: ${now.toLocaleDateString('es-ES')} ${now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}`;
+}
+
+function stockFromRows() {
+  const s = {};
+  for (const ref of ORDER) s[ref] = 0;
+  for (let i = 1; i <= 41; i++) { const r = rows[i]; if (r && r.ref) s[r.ref] += r.cnt; }
+  return s;
+}
+
+// Initial render
+calculate();
+</script>
+</body>
+</html>
