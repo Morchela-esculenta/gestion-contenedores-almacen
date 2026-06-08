@@ -11,6 +11,8 @@
   --zb:#1565c0;--zbm:#1e88e5;--zbl:#e3f2fd;
   --z2:#e65100;--z2m:#f57c00;--z2l:#fff3e0;
   --zc:#b71c1c;--zcm:#d32f2f;--zcl:#ffebee;
+  --zt:#6a1b9a;--ztm:#8e24aa;
+  --zp:#263238;--zpm:#455a64;
   --bg:#f0f2f5;--card:#fff;--text:#1a1a2e;--muted:#78909c;--border:#e0e0e0
 }
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:13px;min-height:100vh}
@@ -44,6 +46,8 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .z-baterias .zhdr{background:linear-gradient(90deg,var(--zb),#1976d2)}
 .z-zona2 .zhdr{background:linear-gradient(90deg,var(--z2),#f57c00)}
 .z-calle .zhdr{background:linear-gradient(90deg,var(--zc),#e53935)}
+.z-tunel .zhdr{background:linear-gradient(90deg,var(--zt),var(--ztm))}
+.z-pasillomuelle .zhdr{background:linear-gradient(90deg,var(--zp),var(--zpm))}
 .zrows{background:#fff}
 .ritem{display:flex;align-items:center;padding:2px 10px;gap:6px;border-bottom:1px solid #f5f5f5;min-height:26px}
 .ritem:last-child{border-bottom:none}
@@ -59,6 +63,8 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .z-baterias .rbar-f{background:linear-gradient(90deg,var(--zbm),#64b5f6)}
 .z-zona2 .rbar-f{background:linear-gradient(90deg,var(--z2m),#ffb74d)}
 .z-calle .rbar-f{background:linear-gradient(90deg,var(--zcm),#ef9a9a)}
+.z-tunel .rbar-f{background:linear-gradient(90deg,var(--ztm),#ba68c8)}
+.z-pasillomuelle .rbar-f{background:linear-gradient(90deg,var(--zpm),#90a4ae)}
 .rpct{width:32px;text-align:right;font-size:.68rem;font-weight:700;color:#555;flex-shrink:0}
 .rcnt{width:68px;text-align:right;font-size:.65rem;color:#aaa;flex-shrink:0;font-variant-numeric:tabular-nums}
 /* ── Stats panel ── */
@@ -176,22 +182,30 @@ const REFS = {
   '2632':  {h:12, t:'L', label:'Grande', color:'#0d47a1'},
   '2072':  {h:12, t:'L', label:'Grande', color:'#1565c0'},
   '2032':  {h:12, t:'L', label:'Grande', color:'#1976d2'},
-  '2671':  {h:12, t:'S', label:'Pequeño', color:'#bf360c'},
-  '2071':  {h:12, t:'S', label:'Pequeño', color:'#e65100'},
-  '50563': {h:12, t:'S', label:'Pequeño', color:'#f57f17'},
+  '2671':  {h:12,  t:'S', label:'Pequeño',   color:'#bf360c'},
+  '2071':  {h:12,  t:'S', label:'Pequeño',   color:'#e65100'},
+  '50563': {h:12,  t:'S', label:'Pequeño',   color:'#f57f17'},
+  '5010':  {h:30,  t:'S', label:'Base/Tapa', color:'#6a1b9a'},
+  '5002':  {h:30,  t:'S', label:'Base/Tapa', color:'#7b1fa2'},
+  '9040':  {h:100, t:'S', label:'Base/Tapa', color:'#4a148c'},
+  '9670':  {h:100, t:'S', label:'Base/Tapa', color:'#311b92'},
 };
 
-const ORDER = ['6429','4329','6415','2632','2072','2032','2671','2071','50563'];
+const ORDER = ['6429','4329','6415','2632','2072','2032','2671','2071','50563','5010','5002','9040','9670'];
 
 const ZONES = [
-  {id:'zona1',    name:'Zona 1',   sr:1,  n:15, vb:13, lb:13, sb:21, dot:'#4caf50', cls:'z-zona1'},
-  {id:'baterias', name:'Baterías', sr:16, n:6,  vb:6,  lb:6,  sb:10, dot:'#1e88e5', cls:'z-baterias'},
-  {id:'zona2',    name:'Zona 2',   sr:22, n:14, vb:5,  lb:5,  sb:9,  dot:'#f57c00', cls:'z-zona2'},
-  {id:'calle',    name:'Calle',    sr:36, n:6,  vb:4,  lb:4,  sb:7,  dot:'#e53935', cls:'z-calle'},
+  {id:'zona1',        name:'Zona 1',        sr:1,  n:15, vb:13, lb:13, sb:21, dot:'#4caf50', cls:'z-zona1'},
+  {id:'baterias',     name:'Baterías',      sr:16, n:6,  vb:6,  lb:6,  sb:10, dot:'#1e88e5', cls:'z-baterias'},
+  {id:'zona2',        name:'Zona 2',        sr:22, n:14, vb:5,  lb:5,  sb:9,  dot:'#f57c00', cls:'z-zona2'},
+  {id:'calle',        name:'Calle',         sr:36, n:6,  vb:4,  lb:4,  sb:7,  dot:'#e53935', cls:'z-calle'},
+  {id:'tunel',        name:'Túnel',         sr:42, n:6,  vb:4,  lb:4,  sb:4,  dot:'#8e24aa', cls:'z-tunel'},
+  {id:'pasillomuelle',name:'Pasillo Muelle',sr:48, n:3,  vb:4,  lb:4,  sb:4,  dot:'#455a64', cls:'z-pasillomuelle'},
 ];
 
 // Visual display top→bottom
-const VORDER = ['calle','zona2','baterias','zona1'];
+const VORDER = ['pasillomuelle','tunel','calle','zona2','baterias','zona1'];
+
+const TOTAL_ROWS = ZONES.reduce((s,z)=>s+z.n,0); // 50
 
 let rows = [];
 
@@ -234,7 +248,7 @@ function calculate(){
   for(const ref of ORDER){
     let rem=stock[ref];
     if(!rem) continue;
-    for(let i=1;i<=41&&rem>0;i++){
+    for(let i=1;i<=TOTAL_ROWS&&rem>0;i++){
       const row=rows[i];
       if(row.ref!==null&&row.ref!==ref) continue;
       const cap=rowCap(row.zone,ref);
@@ -365,7 +379,7 @@ function renderStats(stock,overflow){
     <div class="sgrid">
       <div class="si"><div class="si-val" style="color:#2e7d32">${gtUsed.toLocaleString('es-ES')}</div><div class="si-lbl">Huecos ocupados</div></div>
       <div class="si"><div class="si-val" style="color:#1565c0">${(gtCap-gtUsed).toLocaleString('es-ES')}</div><div class="si-lbl">Huecos libres</div></div>
-      <div class="si"><div class="si-val" style="color:#e65100">${usedR} / 41</div><div class="si-lbl">Filas usadas</div></div>
+      <div class="si"><div class="si-val" style="color:#e65100">${usedR} / ${TOTAL_ROWS}</div><div class="si-lbl">Filas usadas</div></div>
       <div class="si"><div class="si-val" style="color:${gtPct>80?'#d32f2f':'#333'}">${gtPct}%</div><div class="si-lbl">Ocupación total</div></div>
     </div>`;
   panel.appendChild(c3);
@@ -416,7 +430,15 @@ function renderStats(stock,overflow){
 
   const calleUsed=rows.filter(r=>r&&r.zone==='calle'&&r.ref!==null).length;
   if(calleUsed>0)
-    obs.push({t:'warn',i:'🟡',msg:`<strong>${calleUsed}</strong> fila(s) de Calle en uso. Última zona disponible ocupada.`});
+    obs.push({t:'warn',i:'🟡',msg:`<strong>${calleUsed}</strong> fila(s) de Calle en uso. Revisar disponibilidad de zonas interiores.`});
+
+  const tunelUsed=rows.filter(r=>r&&r.zone==='tunel'&&r.ref!==null).length;
+  if(tunelUsed>0)
+    obs.push({t:'warn',i:'🟣',msg:`<strong>${tunelUsed}</strong> fila(s) de Túnel en uso. Zona de desbordamiento secundaria ocupada.`});
+
+  const pasUsed=rows.filter(r=>r&&r.zone==='pasillomuelle'&&r.ref!==null).length;
+  if(pasUsed>0)
+    obs.push({t:'error',i:'⛔',msg:`<strong>${pasUsed}</strong> fila(s) de Pasillo Muelle en uso. Zona crítica — riesgo operativo en acceso a muelle.`});
 
   for(const z of ZONES){
     const zr=rows.filter(r=>r&&r.zone===z.id);
@@ -426,7 +448,14 @@ function renderStats(stock,overflow){
       obs.push({t:'warn',i:'🔴',msg:`<strong>${z.name}</strong> al <strong>${Math.round(used/cap*100)}%</strong>. Alta ocupación. Planificar rotación.`});
   }
 
-  const refsMixed=new Set(rows.filter(r=>r&&r.ref!==null).map(r=>r.zone+'-'+r.ref));
+  // Concentración de bases/tapas
+  const btRefs=['5010','5002','9040','9670'];
+  const btRows=rows.filter(r=>r&&btRefs.includes(r.ref));
+  if(btRows.length>0){
+    const btUsed=btRows.reduce((s,r)=>s+r.cnt,0);
+    obs.push({t:'info',i:'📦',msg:`Bases/tapas (5010·5002·9040·9670): <strong>${btRows.length}</strong> fila(s) · <strong>${btUsed.toLocaleString('es-ES')}</strong> uds. Verificar rotación FIFO.`});
+  }
+
   if(gtUsed>0&&obs.filter(o=>o.t==='error').length===0)
     obs.push({t:'ok',i:'✅',msg:'Distribución correcta. Sin mezcla de referencias por fila.'});
 
@@ -435,9 +464,8 @@ function renderStats(stock,overflow){
   else if(gtPct<40)
     obs.push({t:'ok',i:'✅',msg:`Almacén al <strong>${gtPct}%</strong> de capacidad asignada. Situación holgada.`});
 
-  // Filling order note
   if(gtUsed>0)
-    obs.push({t:'info',i:'ℹ️',msg:'Orden de llenado aplicado: Zona 1 → Baterías → Zona 2 → Calle.'});
+    obs.push({t:'info',i:'ℹ️',msg:'Orden de llenado: Zona 1 → Baterías → Zona 2 → Calle → Túnel → Pasillo Muelle.'});
 
   for(const o of obs)
     h5+=`<div class="obs obs-${o.t}"><span class="obs-ico">${o.i}</span><span>${o.msg}</span></div>`;
@@ -462,8 +490,8 @@ function openModal(mode) {
 
   document.getElementById('mbody').innerHTML = `
     <div class="mfld" style="margin-bottom:10px">
-      <label>Número de fila (1 – 41)</label>
-      <input type="number" id="m-rownum" min="1" max="41" placeholder="Ej: 5"
+      <label>Número de fila (1 – ${TOTAL_ROWS})</label>
+      <input type="number" id="m-rownum" min="1" max="${TOTAL_ROWS}" placeholder="Ej: 5"
         oninput="updateMInfo()" style="text-align:center">
     </div>
     <div id="m-infobox" style="margin-bottom:10px;min-height:36px"></div>
@@ -505,12 +533,12 @@ function updateMInfo() {
   const qg = document.getElementById('m-qtygroup');
   rg.style.display = 'none'; qg.style.display = 'none'; setOk(false);
 
-  if (!n || n < 1 || n > 41) { box.innerHTML = ''; return; }
+  if (!n || n < 1 || n > TOTAL_ROWS) { box.innerHTML = ''; return; }
   const row = rows[n];
   if (!row) { box.innerHTML = ''; return; }
 
   const z = gz(row.zone);
-  const zc = {zona1:'#4caf50',baterias:'#1e88e5',zona2:'#f57c00',calle:'#e53935'}[row.zone];
+  const zc = {zona1:'#4caf50',baterias:'#1e88e5',zona2:'#f57c00',calle:'#e53935',tunel:'#8e24aa',pasillomuelle:'#455a64'}[row.zone];
 
   if (mMode === 'add') {
     if (row.ref) {
@@ -563,7 +591,7 @@ function updateMInfo() {
 
 function updateMRefCap() {
   const n = parseInt(document.getElementById('m-rownum').value);
-  if (!n || n < 1 || n > 41) return;
+  if (!n || n < 1 || n > TOTAL_ROWS) return;
   const row = rows[n];
   if (!row || row.ref) return;
   const ref = document.getElementById('m-ref')?.value;
@@ -575,7 +603,7 @@ function updateMRefCap() {
 
 function modalConfirm() {
   const n = parseInt(document.getElementById('m-rownum').value);
-  if (!n || n < 1 || n > 41) return;
+  if (!n || n < 1 || n > TOTAL_ROWS) return;
   const row = rows[n];
   if (!row) return;
   const qty = parseInt(document.getElementById('m-qty')?.value) || 0;
@@ -611,7 +639,7 @@ function modalConfirm() {
 function stockFromRows() {
   const s = {};
   for (const ref of ORDER) s[ref] = 0;
-  for (let i = 1; i <= 41; i++) { const r = rows[i]; if (r && r.ref) s[r.ref] += r.cnt; }
+  for (let i = 1; i <= TOTAL_ROWS; i++) { const r = rows[i]; if (r && r.ref) s[r.ref] += r.cnt; }
   return s;
 }
 
