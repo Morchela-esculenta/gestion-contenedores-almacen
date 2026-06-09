@@ -276,6 +276,11 @@ async function calculate(){
   renderVisual();
   renderStats(stock,overflow);
 
+  const hayStock = rows.slice(1).some(r => r.ref !== null && r.cnt > 0);
+  if (!hayStock) {
+    setStatus('empty');
+    return;
+  }
   setStatus('saving');
   const guardado = await stockService.saveAll(rows);
   if (guardado) {
