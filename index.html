@@ -153,7 +153,7 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 
 <div class="ibar" id="ibar">
   <div id="ifields" style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end"></div>
-  <button class="btn-calc" onclick="calculate()">▶ Calcular</button>
+  <button class="btn-calc" onclick="calculate()">▶ Distribución automática</button>
   <button class="btn-add" onclick="openModal('add')">+ Añadir</button>
   <button class="btn-sub" onclick="openModal('sub')">− Restar</button>
 </div>
@@ -501,7 +501,7 @@ function renderStats(stock,overflow){
 let mMode = null;
 
 function openModal(mode) {
-  if (rows.length <= 1) { alert('Primero pulsa Calcular para inicializar el almacén.'); return; }
+  if (rows.length <= 1) { alert('Primero pulsa Distribución automática para inicializar el almacén.'); return; }
   mMode = mode;
   const isAdd = mode === 'add';
   const color = isAdd ? '#2e7d32' : '#c62828';
