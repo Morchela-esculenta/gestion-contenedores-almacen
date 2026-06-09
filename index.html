@@ -130,6 +130,11 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
   .hdr{box-shadow:none}
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="src/supabaseClient.js"></script>
+<script src="src/services/stockService.js"></script>
+<script src="src/services/movementService.js"></script>
 </head>
 <body>
 
@@ -142,6 +147,8 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
     </div>
   </div>
   <div id="ts" class="hdr-ts"></div>
+  <span id="db-status" style="font-size:.68rem;opacity:.8;white-space:nowrap"></span>
+  <button class="btn-print" onclick="loadFromSupabase()">🔄 Actualizar</button>
   <button class="btn-print" onclick="window.print()">🖨 Imprimir / PDF</button>
 </header>
 
@@ -243,7 +250,7 @@ function initRows(){
   }
 })();
 
-function calculate(){
+async function calculate(){
   initRows();
   const stock={}, overflow={};
   for(const ref of ORDER) stock[ref]=Math.max(0,parseInt(document.getElementById('i_'+ref).value)||0);
@@ -269,6 +276,15 @@ function calculate(){
 
   renderVisual();
   renderStats(stock,overflow);
+
+  setStatus('saving');
+  const guardado = await stockService.saveAll(rows);
+  if (guardado) {
+    await movementService.log({ accion: 'inicializar', nota: 'Cálculo completo desde inputs' });
+    setStatus('ok');
+  } else {
+    setStatus('error');
+  }
 }
 
 function renderVisual(){
@@ -604,12 +620,15 @@ function updateMRefCap() {
   document.getElementById('m-qty').max = cap;
 }
 
-function modalConfirm() {
+async function modalConfirm() {
   const n = parseInt(document.getElementById('m-rownum').value);
   if (!n || n < 1 || n > TOTAL_ROWS) return;
   const row = rows[n];
   if (!row) return;
   const qty = parseInt(document.getElementById('m-qty')?.value) || 0;
+  const accionActual = mMode;
+  const stockAntes = row.cnt;
+  let refUsada = row.ref;
 
   if (mMode === 'add') {
     let ref = row.ref;
@@ -617,6 +636,7 @@ function modalConfirm() {
       ref = document.getElementById('m-ref')?.value;
       if (!ref) return;
       row.ref = ref; row.cap = rowCap(row.zone, ref); row.cnt = 0;
+      refUsada = ref;
     }
     if (qty <= 0) { alert('Introduce una cantidad mayor que 0.'); return; }
     const space = row.cap - row.cnt;
@@ -637,6 +657,23 @@ function modalConfirm() {
   const now = new Date();
   document.getElementById('ts').textContent =
     `Actualizado: ${now.toLocaleDateString('es-ES')} ${now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}`;
+
+  setStatus('saving');
+  const guardado = await stockService.saveRow(rows[n]);
+  if (guardado) {
+    await movementService.log({
+      referencia: refUsada,
+      accion: accionActual === 'add' ? 'añadir' : 'retirar',
+      cantidad: qty,
+      fila_numero: n,
+      zona: rows[n]?.zone || row.zone,
+      stock_anterior: stockAntes,
+      stock_nuevo: rows[n]?.cnt ?? 0
+    });
+    setStatus('ok');
+  } else {
+    setStatus('error');
+  }
 }
 
 function stockFromRows() {
@@ -646,8 +683,53 @@ function stockFromRows() {
   return s;
 }
 
-// Initial render
-calculate();
+function setStatus(state) {
+  const el = document.getElementById('db-status');
+  if (!el) return;
+  const map = {
+    loading: { text: '⏳ Cargando...', color: '#90a4ae' },
+    saving:  { text: '💾 Guardando...', color: '#90a4ae' },
+    ok:      { text: '✅ Guardado',     color: '#81c784' },
+    error:   { text: '⚠️ Sin conexión', color: '#ef9a9a' },
+    empty:   { text: '🆕 Sin datos',    color: '#ffcc80' }
+  };
+  const s = map[state] || map.ok;
+  el.textContent = s.text;
+  el.style.color = s.color;
+}
+
+async function loadFromSupabase(isInitial = false) {
+  setStatus('loading');
+  const data = await stockService.load();
+  if (data && data.length > 0) {
+    initRows();
+    for (const record of data) {
+      const row = rows[record.fila_numero];
+      if (row) { row.ref = record.referencia || null; row.cnt = record.cantidad; row.cap = record.capacidad; }
+    }
+    const stock = stockFromRows();
+    for (const ref of ORDER) {
+      const input = document.getElementById('i_' + ref);
+      if (input) { input.value = stock[ref] || 0; input.style.borderColor = stock[ref] > 0 ? REFS[ref].color : '#e0e0e0'; }
+    }
+    renderVisual();
+    renderStats(stock, {});
+    setStatus('ok');
+    const now = new Date();
+    document.getElementById('ts').textContent =
+      `${isInitial ? 'Cargado' : 'Actualizado'}: ${now.toLocaleDateString('es-ES')} ${now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}`;
+  } else if (isInitial) {
+    initRows();
+    renderVisual();
+    renderStats({}, {});
+    setStatus('empty');
+  } else {
+    setStatus('error');
+  }
+}
+
+// Carga inicial desde Supabase
+loadFromSupabase(true);
 </script>
 </body>
 </html>
