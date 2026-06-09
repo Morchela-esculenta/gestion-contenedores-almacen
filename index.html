@@ -282,7 +282,7 @@ async function calculate(){
     await movementService.log({ accion: 'inicializar', nota: 'Cálculo completo desde inputs' });
     setStatus('ok');
   } else {
-    setStatus('error');
+    setStatus('error', stockService.lastError);
   }
 }
 
@@ -682,7 +682,7 @@ function stockFromRows() {
   return s;
 }
 
-function setStatus(state) {
+function setStatus(state, detail) {
   const el = document.getElementById('db-status');
   if (!el) return;
   const map = {
@@ -693,8 +693,9 @@ function setStatus(state) {
     empty:   { text: '🆕 Sin datos',    color: '#ffcc80' }
   };
   const s = map[state] || map.ok;
-  el.textContent = s.text;
+  el.textContent = s.text + (detail ? ' · ' + detail : '');
   el.style.color = s.color;
+  if (state === 'error') console.error('[App] Estado error:', detail);
 }
 
 async function loadFromSupabase(isInitial = false) {

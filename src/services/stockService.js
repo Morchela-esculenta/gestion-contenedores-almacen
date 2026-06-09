@@ -1,4 +1,6 @@
 const stockService = {
+  lastError: null,
+
   async load() {
     try {
       const { data, error } = await sbClient
@@ -8,7 +10,7 @@ const stockService = {
       if (error) throw error;
       return data && data.length > 0 ? data : null;
     } catch (err) {
-      console.error('[Stock] Error al cargar:', err.message);
+      console.error('[Stock] Error al cargar:', err.message, err);
       return null;
     }
   },
@@ -29,7 +31,8 @@ const stockService = {
       if (error) throw error;
       return true;
     } catch (err) {
-      console.error('[Stock] Error al guardar todo:', err.message);
+      console.error('[Stock] Error al guardar todo:', err.message, err);
+      stockService.lastError = err.message;
       return false;
     }
   },
@@ -49,7 +52,7 @@ const stockService = {
       if (error) throw error;
       return true;
     } catch (err) {
-      console.error('[Stock] Error al guardar fila:', err.message);
+      console.error('[Stock] Error al guardar fila:', err.message, err);
       return false;
     }
   }
