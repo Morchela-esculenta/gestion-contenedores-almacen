@@ -440,28 +440,48 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#e8e8e8;color:#1a1a2
     <span class="slide-header-title">Gestión de Contenedores Vacíos</span>
     <div class="slide-header-num">4</div>
   </div>
-  <div style="flex:1;padding:8px 16px;display:flex;flex-direction:column;gap:6px;overflow:hidden">
-    <!-- Leyenda letras -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;flex-shrink:0">
-      <div style="display:flex;gap:5px;align-items:flex-start;background:#e3f2fd;border-radius:5px;padding:5px 7px">
-        <div style="width:18px;height:18px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.62rem;font-weight:800;flex-shrink:0">A</div>
-        <div><div style="font-size:.68rem;font-weight:700;color:var(--navy)">Logo y título</div><div style="font-size:.6rem;color:#546e7a">Cabecera con estado y botones de acción rápida</div></div>
+  <div style="flex:1;padding:10px 16px;display:flex;gap:14px;overflow:hidden">
+
+    <!-- COLUMNA IZQUIERDA: descripciones A B C D -->
+    <div style="width:210px;flex-shrink:0;display:flex;flex-direction:column;gap:10px;justify-content:center">
+      <div class="accent-bar" style="background:linear-gradient(90deg,var(--green),var(--green2));margin-bottom:2px"></div>
+      <div style="font-size:1.15rem;font-weight:800;color:var(--navy);line-height:1.2;margin-bottom:2px">Conoce la pantalla</div>
+      <div style="font-size:.72rem;color:#78909c;margin-bottom:6px">Cuatro zonas principales de trabajo</div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:9px 11px;background:#e3f2fd;border-radius:7px;border-left:4px solid var(--blue)">
+        <div style="width:24px;height:24px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.72rem;font-weight:800;flex-shrink:0;margin-top:1px">A</div>
+        <div>
+          <div style="font-size:.78rem;font-weight:700;color:var(--navy);margin-bottom:3px">Cabecera principal</div>
+          <div style="font-size:.7rem;color:#37474f;line-height:1.5">Logo, título de la app y estado de conexión. Contiene el botón <strong>🔄 Actualizar</strong> para sincronizar entre dispositivos y el botón <strong>🖨 Imprimir</strong> para exportar a PDF.</div>
+        </div>
       </div>
-      <div style="display:flex;gap:5px;align-items:flex-start;background:#e8f5e9;border-radius:5px;padding:5px 7px">
-        <div style="width:18px;height:18px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.62rem;font-weight:800;flex-shrink:0">B</div>
-        <div><div style="font-size:.68rem;font-weight:700;color:var(--navy)">Referencias y botones</div><div style="font-size:.6rem;color:#546e7a">Stock por referencia · <strong style="color:var(--green)">+ Añadir</strong> · <strong style="color:var(--red)">− Restar</strong></div></div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:9px 11px;background:#e8f5e9;border-radius:7px;border-left:4px solid var(--green)">
+        <div style="width:24px;height:24px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.72rem;font-weight:800;flex-shrink:0;margin-top:1px">B</div>
+        <div>
+          <div style="font-size:.78rem;font-weight:700;color:var(--navy);margin-bottom:3px">Barra de referencias y acciones</div>
+          <div style="font-size:.7rem;color:#37474f;line-height:1.5">Muestra las <strong>13 referencias</strong> del almacén con su stock actual. Los campos en color tienen stock registrado. Los botones <strong style="color:var(--green)">+ Añadir</strong> y <strong style="color:var(--red)">− Restar</strong> son los que se usan en el día a día.</div>
+        </div>
       </div>
-      <div style="display:flex;gap:5px;align-items:flex-start;background:#eceff1;border-radius:5px;padding:5px 7px">
-        <div style="width:18px;height:18px;background:var(--slate);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.62rem;font-weight:800;flex-shrink:0">C</div>
-        <div><div style="font-size:.68rem;font-weight:700;color:var(--navy)">Vista del almacén</div><div style="font-size:.6rem;color:#546e7a">6 zonas con filas, referencias y barras de ocupación</div></div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:9px 11px;background:#eceff1;border-radius:7px;border-left:4px solid var(--slate)">
+        <div style="width:24px;height:24px;background:var(--slate);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.72rem;font-weight:800;flex-shrink:0;margin-top:1px">C</div>
+        <div>
+          <div style="font-size:.78rem;font-weight:700;color:var(--navy);margin-bottom:3px">Vista del almacén</div>
+          <div style="font-size:.7rem;color:#37474f;line-height:1.5">Representa las <strong>6 zonas</strong> con sus <strong>50 filas</strong>. Cada fila muestra su número, la referencia asignada, las bases ocupadas visualmente, la barra de progreso y el porcentaje de ocupación.</div>
+        </div>
       </div>
-      <div style="display:flex;gap:5px;align-items:flex-start;background:#fff3e0;border-radius:5px;padding:5px 7px">
-        <div style="width:18px;height:18px;background:var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.62rem;font-weight:800;flex-shrink:0">D</div>
-        <div><div style="font-size:.68rem;font-weight:700;color:var(--navy)">Panel estadísticas</div><div style="font-size:.6rem;color:#546e7a">Ocupación por zona, resumen total y alertas</div></div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:9px 11px;background:#fff3e0;border-radius:7px;border-left:4px solid var(--orange)">
+        <div style="width:24px;height:24px;background:var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.72rem;font-weight:800;flex-shrink:0;margin-top:1px">D</div>
+        <div>
+          <div style="font-size:.78rem;font-weight:700;color:var(--navy);margin-bottom:3px">Panel de estadísticas</div>
+          <div style="font-size:.7rem;color:#37474f;line-height:1.5">Resumen en tiempo real: ocupación por zona, huecos totales libres y ocupados, filas en uso y porcentaje global. Incluye <strong>alertas automáticas</strong> cuando una zona supera el 90% de capacidad.</div>
+        </div>
       </div>
     </div>
 
-    <!-- Mockup grande full width -->
+    <!-- COLUMNA DERECHA: mockup -->
     <div class="mockup-frame" style="flex:1;overflow:hidden;font-size:10px">
       <!-- A: Header completo -->
       <div class="mock-hdr" style="padding:6px 12px;outline:2px solid var(--blue);outline-offset:-1px;position:relative">
