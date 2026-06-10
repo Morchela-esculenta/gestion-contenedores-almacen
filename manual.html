@@ -440,97 +440,146 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#e8e8e8;color:#1a1a2
     <span class="slide-header-title">Gestión de Contenedores Vacíos</span>
     <div class="slide-header-num">4</div>
   </div>
-  <div class="col-full" style="padding:12px 24px;display:flex;gap:16px">
-    <div style="flex:1">
-      <div class="accent-bar" style="background:linear-gradient(90deg,var(--green),var(--green2))"></div>
-      <div class="section-title">Conoce la pantalla</div>
-      <div class="section-sub" style="margin-bottom:10px">Cuatro zonas principales de trabajo</div>
-
-      <div style="display:flex;flex-direction:column;gap:7px">
-        <div style="display:flex;gap:8px;align-items:flex-start">
-          <div style="width:22px;height:22px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;font-weight:800;flex-shrink:0">A</div>
-          <div><div style="font-size:.8rem;font-weight:700;color:var(--navy)">Cabecera de referencias</div><div style="font-size:.7rem;color:#546e7a">Muestra las referencias activas y su stock total. Los campos resaltados en color tienen stock registrado.</div></div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:flex-start">
-          <div style="width:22px;height:22px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;font-weight:800;flex-shrink:0">B</div>
-          <div><div style="font-size:.8rem;font-weight:700;color:var(--navy)">Botones de acción</div><div style="font-size:.7rem;color:#546e7a"><strong style="color:var(--green)">+ Añadir</strong> y <strong style="color:var(--red)">− Restar</strong> para registrar movimientos. Son los botones que usarás en el día a día.</div></div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:flex-start">
-          <div style="width:22px;height:22px;background:var(--slate);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;font-weight:800;flex-shrink:0">C</div>
-          <div><div style="font-size:.8rem;font-weight:700;color:var(--navy)">Vista del almacén</div><div style="font-size:.7rem;color:#546e7a">Muestra todas las zonas con sus filas, referencias asignadas, barras de ocupación y porcentajes.</div></div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:flex-start">
-          <div style="width:22px;height:22px;background:var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;font-weight:800;flex-shrink:0">D</div>
-          <div><div style="font-size:.8rem;font-weight:700;color:var(--navy)">Panel de estadísticas</div><div style="font-size:.7rem;color:#546e7a">Resumen de ocupación por zona, totales y alertas automáticas de alta ocupación.</div></div>
-        </div>
+  <div style="flex:1;padding:8px 16px;display:flex;flex-direction:column;gap:6px;overflow:hidden">
+    <!-- Leyenda letras -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;flex-shrink:0">
+      <div style="display:flex;gap:5px;align-items:flex-start;background:#e3f2fd;border-radius:5px;padding:5px 7px">
+        <div style="width:18px;height:18px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.62rem;font-weight:800;flex-shrink:0">A</div>
+        <div><div style="font-size:.68rem;font-weight:700;color:var(--navy)">Logo y título</div><div style="font-size:.6rem;color:#546e7a">Cabecera con estado y botones de acción rápida</div></div>
       </div>
-
-      <div class="zone-legend" style="margin-top:12px">
-        <span style="font-size:.68rem;font-weight:700;color:#546e7a;margin-right:4px">Zonas:</span>
-        <span class="zone-tag"><span class="zone-dot" style="background:#4caf50"></span>Zona 1</span>
-        <span class="zone-tag"><span class="zone-dot" style="background:#1e88e5"></span>Baterías</span>
-        <span class="zone-tag"><span class="zone-dot" style="background:#f57c00"></span>Zona 2</span>
-        <span class="zone-tag"><span class="zone-dot" style="background:#e53935"></span>Calle</span>
-        <span class="zone-tag"><span class="zone-dot" style="background:#8e24aa"></span>Túnel</span>
-        <span class="zone-tag"><span class="zone-dot" style="background:#455a64"></span>Pasillo Muelle</span>
+      <div style="display:flex;gap:5px;align-items:flex-start;background:#e8f5e9;border-radius:5px;padding:5px 7px">
+        <div style="width:18px;height:18px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.62rem;font-weight:800;flex-shrink:0">B</div>
+        <div><div style="font-size:.68rem;font-weight:700;color:var(--navy)">Referencias y botones</div><div style="font-size:.6rem;color:#546e7a">Stock por referencia · <strong style="color:var(--green)">+ Añadir</strong> · <strong style="color:var(--red)">− Restar</strong></div></div>
+      </div>
+      <div style="display:flex;gap:5px;align-items:flex-start;background:#eceff1;border-radius:5px;padding:5px 7px">
+        <div style="width:18px;height:18px;background:var(--slate);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.62rem;font-weight:800;flex-shrink:0">C</div>
+        <div><div style="font-size:.68rem;font-weight:700;color:var(--navy)">Vista del almacén</div><div style="font-size:.6rem;color:#546e7a">6 zonas con filas, referencias y barras de ocupación</div></div>
+      </div>
+      <div style="display:flex;gap:5px;align-items:flex-start;background:#fff3e0;border-radius:5px;padding:5px 7px">
+        <div style="width:18px;height:18px;background:var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.62rem;font-weight:800;flex-shrink:0">D</div>
+        <div><div style="font-size:.68rem;font-weight:700;color:var(--navy)">Panel estadísticas</div><div style="font-size:.6rem;color:#546e7a">Ocupación por zona, resumen total y alertas</div></div>
       </div>
     </div>
 
-    <!-- Full app mockup with callouts -->
-    <div style="position:relative;width:220px;flex-shrink:0">
-      <div class="mockup-frame">
-        <div class="mock-hdr">
-          <div><div class="mock-hdr-title">Gestión de Contenedores Vacíos</div><div class="mock-hdr-sub">Planificación de almacén</div></div>
-          <div class="mock-hdr-btns"><button class="mock-btn mock-btn-refresh">🔄</button></div>
-        </div>
-        <!-- A: ibar -->
-        <div class="mock-ibar" style="outline:2px solid var(--blue);outline-offset:-1px;position:relative">
-          <div style="position:absolute;top:-14px;left:6px;background:var(--blue);color:#fff;font-size:6px;font-weight:700;padding:1px 5px;border-radius:2px">A</div>
-          <div class="mock-igrp"><label>6429</label><input value="350" style="border-color:#1b5e20;width:28px" readonly></div>
-          <div class="mock-igrp"><label>4329</label><input value="0" style="width:28px" readonly></div>
-          <div class="mock-igrp"><label>2632</label><input value="120" style="border-color:#0d47a1;width:28px" readonly></div>
-          <div style="margin-left:auto;display:flex;gap:2px;align-items:flex-end">
-            <div style="position:relative">
-              <div style="position:absolute;top:-14px;left:0;background:var(--green);color:#fff;font-size:6px;font-weight:700;padding:1px 5px;border-radius:2px">B</div>
-              <button class="mock-btn mock-btn-add" style="height:18px;font-size:6.5px">+ Añadir</button>
-            </div>
-            <button class="mock-btn mock-btn-sub" style="height:18px;font-size:6.5px">− Restar</button>
+    <!-- Mockup grande full width -->
+    <div class="mockup-frame" style="flex:1;overflow:hidden;font-size:10px">
+      <!-- A: Header completo -->
+      <div class="mock-hdr" style="padding:6px 12px;outline:2px solid var(--blue);outline-offset:-1px;position:relative">
+        <div style="position:absolute;top:2px;left:2px;background:var(--blue);color:#fff;font-size:7px;font-weight:700;padding:1px 5px;border-radius:2px">A</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;background:#fff;border-radius:3px;flex-shrink:0"></div>
+          <div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:.3px">Gestión de Contenedores Vacíos</div>
+            <div style="font-size:7px;opacity:.5;margin-top:1px">Planificación de almacén · Zonas de picking y calle</div>
           </div>
         </div>
-        <div style="display:flex;gap:4px;padding:4px">
-          <!-- C: visual -->
-          <div style="flex:1;position:relative">
-            <div style="position:absolute;top:0;left:0;background:var(--slate);color:#fff;font-size:6px;font-weight:700;padding:1px 5px;border-radius:2px;z-index:2">C</div>
-            <div class="mock-zblock" style="outline:1px solid var(--slate);outline-offset:-1px">
-              <div class="mock-zhdr" style="background:linear-gradient(90deg,#2e7d32,#388e3c)"><span>Zona 1</span><span>F1–15 · 13 bases</span></div>
-              <div class="mock-zrows">
-                <div class="mock-row"><div class="mock-rn">F1</div><div class="mock-rref" style="background:#1b5e20">6429</div><div class="mock-rcells"><div class="mock-cell" style="background:#1b5e20"></div><div class="mock-cell" style="background:#1b5e20"></div><div class="mock-cell" style="background:#1b5e20"></div><div class="mock-cell" style="background:#1b5e20"></div><div class="mock-cell" style="background:#1b5e20"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div></div><div class="mock-rbar"><div class="mock-rbarf" style="width:65%;background:#4caf50"></div></div><div class="mock-rpct">65%</div></div>
-                <div class="mock-row"><div class="mock-rn">F2</div><div class="mock-rref" style="background:#2e7d32">4329</div><div class="mock-rcells"><div class="mock-cell" style="background:#2e7d32"></div><div class="mock-cell" style="background:#2e7d32"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div></div><div class="mock-rbar"><div class="mock-rbarf" style="width:30%;background:#4caf50"></div></div><div class="mock-rpct">30%</div></div>
-                <div class="mock-row"><div class="mock-rn">F3</div><div class="mock-rref-empty">—</div><div class="mock-rcells"><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div></div><div class="mock-rbar"></div><div class="mock-rpct"></div></div>
-              </div>
-            </div>
-            <div class="mock-zblock">
-              <div class="mock-zhdr" style="background:linear-gradient(90deg,#1565c0,#1976d2)"><span>Baterías</span><span>F16–21</span></div>
-              <div class="mock-zrows">
-                <div class="mock-row"><div class="mock-rn">F16</div><div class="mock-rref" style="background:#0d47a1">2632</div><div class="mock-rcells"><div class="mock-cell" style="background:#0d47a1"></div><div class="mock-cell" style="background:#0d47a1"></div><div class="mock-cell" style="background:#0d47a1"></div><div class="mock-cell" style="background:#ececec"></div></div><div class="mock-rbar"><div class="mock-rbarf" style="width:80%;background:#1e88e5"></div></div><div class="mock-rpct">80%</div></div>
-              </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+          <span style="font-size:8px;color:#81c784;font-weight:600">✅ Cargado 08:15</span>
+          <button class="mock-btn mock-btn-refresh" style="font-size:8px;padding:3px 8px">🔄 Actualizar</button>
+          <button class="mock-btn mock-btn-print" style="font-size:8px;padding:3px 8px">🖨 Imprimir / PDF</button>
+        </div>
+      </div>
+      <!-- B: Barra referencias + botones completa -->
+      <div class="mock-ibar" style="outline:2px solid var(--green);outline-offset:-1px;position:relative;padding:5px 10px;gap:6px">
+        <div style="position:absolute;top:2px;left:2px;background:var(--green);color:#fff;font-size:7px;font-weight:700;padding:1px 5px;border-radius:2px">B</div>
+        <div class="mock-igrp"><label>6429</label><small>h:5·Gde</small><input value="350" style="border-color:#1b5e20" readonly></div>
+        <div class="mock-igrp"><label>4329</label><small>h:5·Gde</small><input value="0" readonly></div>
+        <div class="mock-igrp"><label>6415</label><small>h:5·Gde</small><input value="0" readonly></div>
+        <div class="mock-igrp"><label>2632</label><small>h:12·Gde</small><input value="120" style="border-color:#0d47a1" readonly></div>
+        <div class="mock-igrp"><label>2072</label><small>h:12·Gde</small><input value="0" readonly></div>
+        <div class="mock-igrp"><label>2032</label><small>h:12·Gde</small><input value="0" readonly></div>
+        <div class="mock-igrp"><label>2671</label><small>h:12·Peq</small><input value="80" style="border-color:#bf360c" readonly></div>
+        <div class="mock-igrp"><label>2071</label><small>h:12·Peq</small><input value="0" readonly></div>
+        <div class="mock-igrp"><label>50563</label><small>h:12·Peq</small><input value="0" readonly></div>
+        <div class="mock-igrp"><label>5010</label><small>h:30·Peq</small><input value="0" readonly></div>
+        <div class="mock-igrp"><label>5002</label><small>h:30·Peq</small><input value="0" readonly></div>
+        <div class="mock-igrp"><label>9040</label><small>h:100·Peq</small><input value="0" readonly></div>
+        <div class="mock-igrp"><label>9670</label><small>h:100·Peq</small><input value="0" readonly></div>
+        <div style="margin-left:auto;display:flex;gap:4px;align-items:flex-end">
+          <button class="mock-btn mock-btn-warn" style="height:26px;font-size:7.5px;opacity:.55">▶ Distribución automática</button>
+          <button class="mock-btn mock-btn-add" style="height:26px;font-size:8.5px;padding:0 10px">+ Añadir</button>
+          <button class="mock-btn mock-btn-sub" style="height:26px;font-size:8.5px;padding:0 10px">− Restar</button>
+        </div>
+      </div>
+      <!-- C + D: Main area -->
+      <div style="display:flex;gap:6px;padding:6px;height:calc(100% - 86px)">
+        <!-- C: Visual zonas -->
+        <div style="flex:1;display:flex;flex-direction:column;gap:3px;outline:2px solid var(--slate);outline-offset:-1px;border-radius:4px;padding:2px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:3px;left:3px;background:var(--slate);color:#fff;font-size:7px;font-weight:700;padding:1px 5px;border-radius:2px;z-index:3">C</div>
+          <!-- Zona 1 -->
+          <div class="mock-zblock" style="margin-bottom:0">
+            <div class="mock-zhdr" style="background:linear-gradient(90deg,#2e7d32,#388e3c);padding:3px 8px"><span>Zona 1</span><span>F1–15 · 13 bases · 58% ocup · 4 libres</span></div>
+            <div class="mock-zrows">
+              <div class="mock-row"><div class="mock-rn">F1</div><div class="mock-rref" style="background:#1b5e20">6429</div><div class="mock-rcells"><div class="mock-cell" style="background:#1b5e20"></div><div class="mock-cell" style="background:#1b5e20"></div><div class="mock-cell" style="background:#1b5e20"></div><div class="mock-cell" style="background:#1b5e20"></div><div class="mock-cell" style="background:#1b5e20"></div><div class="mock-cell" style="background:#1b5e20"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div></div><div class="mock-rbar"><div class="mock-rbarf" style="width:77%;background:#4caf50"></div></div><div class="mock-rpct">77%</div></div>
+              <div class="mock-row"><div class="mock-rn">F2</div><div class="mock-rref" style="background:#2e7d32">4329</div><div class="mock-rcells"><div class="mock-cell" style="background:#2e7d32"></div><div class="mock-cell" style="background:#2e7d32"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div></div><div class="mock-rbar"><div class="mock-rbarf" style="width:28%;background:#4caf50"></div></div><div class="mock-rpct">28%</div></div>
+              <div class="mock-row"><div class="mock-rn">F3</div><div class="mock-rref-empty">—</div><div class="mock-rcells"><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div></div><div class="mock-rbar"></div><div class="mock-rpct"></div></div>
             </div>
           </div>
-          <!-- D: stats -->
-          <div style="width:80px;position:relative">
-            <div style="position:absolute;top:0;right:0;background:var(--orange);color:#fff;font-size:6px;font-weight:700;padding:1px 5px;border-radius:2px;z-index:2">D</div>
-            <div class="mock-card" style="outline:1px solid var(--orange);outline-offset:-1px">
-              <div class="mock-ctitle">Huecos por zona</div>
-              <div class="mock-zstat"><div class="mock-zdot" style="background:#4caf50"></div><div class="mock-zname">Zona 1</div><div class="mock-zpct" style="color:#2e7d32">58%</div></div>
-              <div class="mock-zstat"><div class="mock-zdot" style="background:#1e88e5"></div><div class="mock-zname">Baterías</div><div class="mock-zpct" style="color:#f57c00">72%</div></div>
-              <div class="mock-zstat"><div class="mock-zdot" style="background:#f57c00"></div><div class="mock-zname">Zona 2</div><div class="mock-zpct" style="color:#2e7d32">34%</div></div>
+          <!-- Baterías -->
+          <div class="mock-zblock" style="margin-bottom:0">
+            <div class="mock-zhdr" style="background:linear-gradient(90deg,#1565c0,#1976d2);padding:3px 8px"><span>Baterías</span><span>F16–21 · 6 bases · 72% ocup</span></div>
+            <div class="mock-zrows">
+              <div class="mock-row"><div class="mock-rn">F16</div><div class="mock-rref" style="background:#0d47a1">2632</div><div class="mock-rcells"><div class="mock-cell" style="background:#0d47a1"></div><div class="mock-cell" style="background:#0d47a1"></div><div class="mock-cell" style="background:#0d47a1"></div><div class="mock-cell" style="background:#0d47a1"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div></div><div class="mock-rbar"><div class="mock-rbarf" style="width:72%;background:#1e88e5"></div></div><div class="mock-rpct">72%</div></div>
+              <div class="mock-row"><div class="mock-rn">F17</div><div class="mock-rref" style="background:#bf360c">2671</div><div class="mock-rcells"><div class="mock-cell" style="background:#bf360c"></div><div class="mock-cell" style="background:#bf360c"></div><div class="mock-cell" style="background:#bf360c"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div></div><div class="mock-rbar"><div class="mock-rbarf" style="width:55%;background:#1e88e5"></div></div><div class="mock-rpct">55%</div></div>
             </div>
-            <div class="mock-card">
-              <div class="mock-ctitle">Resumen</div>
-              <div class="mock-grid">
-                <div class="mock-si"><div class="mock-si-val" style="color:#2e7d32">470</div><div class="mock-si-lbl">Ocupados</div></div>
-                <div class="mock-si"><div class="mock-si-val" style="color:#1565c0">312</div><div class="mock-si-lbl">Libres</div></div>
-              </div>
+          </div>
+          <!-- Zona 2 -->
+          <div class="mock-zblock" style="margin-bottom:0">
+            <div class="mock-zhdr" style="background:linear-gradient(90deg,#e65100,#f57c00);padding:3px 8px"><span>Zona 2</span><span>F22–35 · 5 bases · 34% ocup</span></div>
+            <div class="mock-zrows">
+              <div class="mock-row"><div class="mock-rn">F22</div><div class="mock-rref" style="background:#1b5e20">6429</div><div class="mock-rcells"><div class="mock-cell" style="background:#1b5e20"></div><div class="mock-cell" style="background:#1b5e20"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div></div><div class="mock-rbar"><div class="mock-rbarf" style="width:34%;background:#f57c00"></div></div><div class="mock-rpct">34%</div></div>
+              <div class="mock-row"><div class="mock-rn">F23</div><div class="mock-rref-empty">—</div><div class="mock-rcells"><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div></div><div class="mock-rbar"></div><div class="mock-rpct"></div></div>
+            </div>
+          </div>
+          <!-- Calle -->
+          <div class="mock-zblock" style="margin-bottom:0">
+            <div class="mock-zhdr" style="background:linear-gradient(90deg,#b71c1c,#e53935);padding:3px 8px"><span>Calle</span><span>F36–41 · 4 bases · 0% ocup · 6 libres</span></div>
+            <div class="mock-zrows">
+              <div class="mock-row"><div class="mock-rn">F36</div><div class="mock-rref-empty">—</div><div class="mock-rcells"><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div></div><div class="mock-rbar"></div><div class="mock-rpct"></div></div>
+            </div>
+          </div>
+          <!-- Túnel -->
+          <div class="mock-zblock" style="margin-bottom:0">
+            <div class="mock-zhdr" style="background:linear-gradient(90deg,#6a1b9a,#8e24aa);padding:3px 8px"><span>Túnel</span><span>F42–47 · 4 bases · 0% ocup</span></div>
+            <div class="mock-zrows">
+              <div class="mock-row"><div class="mock-rn">F42</div><div class="mock-rref-empty">—</div><div class="mock-rcells"><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div></div><div class="mock-rbar"></div><div class="mock-rpct"></div></div>
+            </div>
+          </div>
+          <!-- Pasillo Muelle -->
+          <div class="mock-zblock" style="margin-bottom:0">
+            <div class="mock-zhdr" style="background:linear-gradient(90deg,#263238,#455a64);padding:3px 8px"><span>Pasillo Muelle</span><span>F48–50 · 4 bases · 0% ocup</span></div>
+            <div class="mock-zrows">
+              <div class="mock-row"><div class="mock-rn">F48</div><div class="mock-rref-empty">—</div><div class="mock-rcells"><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div><div class="mock-cell" style="background:#ececec"></div></div><div class="mock-rbar"></div><div class="mock-rpct"></div></div>
+            </div>
+          </div>
+        </div>
+        <!-- D: Stats panel -->
+        <div style="width:130px;flex-shrink:0;display:flex;flex-direction:column;gap:4px;outline:2px solid var(--orange);outline-offset:-1px;border-radius:4px;padding:3px;position:relative">
+          <div style="position:absolute;top:3px;right:3px;background:var(--orange);color:#fff;font-size:7px;font-weight:700;padding:1px 5px;border-radius:2px;z-index:3">D</div>
+          <div class="mock-card">
+            <div class="mock-ctitle">Huecos por zona</div>
+            <div class="mock-zstat"><div class="mock-zdot" style="background:#4caf50"></div><div class="mock-zname">Zona 1</div><div style="width:36px;height:4px;background:#eee;border-radius:2px;overflow:hidden"><div style="width:58%;height:100%;background:#4caf50;border-radius:2px"></div></div><div class="mock-zpct" style="color:#2e7d32">58%</div></div>
+            <div class="mock-zstat"><div class="mock-zdot" style="background:#1e88e5"></div><div class="mock-zname">Baterías</div><div style="width:36px;height:4px;background:#eee;border-radius:2px;overflow:hidden"><div style="width:72%;height:100%;background:#1e88e5;border-radius:2px"></div></div><div class="mock-zpct" style="color:#f57c00">72%</div></div>
+            <div class="mock-zstat"><div class="mock-zdot" style="background:#f57c00"></div><div class="mock-zname">Zona 2</div><div style="width:36px;height:4px;background:#eee;border-radius:2px;overflow:hidden"><div style="width:34%;height:100%;background:#f57c00;border-radius:2px"></div></div><div class="mock-zpct" style="color:#2e7d32">34%</div></div>
+            <div class="mock-zstat"><div class="mock-zdot" style="background:#e53935"></div><div class="mock-zname">Calle</div><div style="width:36px;height:4px;background:#eee;border-radius:2px;overflow:hidden"><div style="width:0%;height:100%;background:#e53935;border-radius:2px"></div></div><div class="mock-zpct" style="color:#2e7d32">0%</div></div>
+            <div class="mock-zstat"><div class="mock-zdot" style="background:#8e24aa"></div><div class="mock-zname">Túnel</div><div style="width:36px;height:4px;background:#eee;border-radius:2px;overflow:hidden"><div style="width:0%;height:100%;background:#8e24aa;border-radius:2px"></div></div><div class="mock-zpct" style="color:#2e7d32">0%</div></div>
+            <div class="mock-zstat" style="border-bottom:none"><div class="mock-zdot" style="background:#455a64"></div><div class="mock-zname">P.Muelle</div><div style="width:36px;height:4px;background:#eee;border-radius:2px;overflow:hidden"><div style="width:0%;height:100%;background:#455a64;border-radius:2px"></div></div><div class="mock-zpct" style="color:#2e7d32">0%</div></div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-ctitle">Resumen general</div>
+            <div class="mock-grid">
+              <div class="mock-si"><div class="mock-si-val" style="color:#2e7d32;font-size:13px">782</div><div class="mock-si-lbl">Ocupados</div></div>
+              <div class="mock-si"><div class="mock-si-val" style="color:#1565c0;font-size:13px">1240</div><div class="mock-si-lbl">Libres</div></div>
+              <div class="mock-si"><div class="mock-si-val" style="color:#e65100;font-size:13px">6/50</div><div class="mock-si-lbl">Filas usadas</div></div>
+              <div class="mock-si"><div class="mock-si-val" style="color:#333;font-size:13px">39%</div><div class="mock-si-lbl">Ocupación</div></div>
+            </div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-ctitle">Referencias activas</div>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <div style="display:flex;align-items:center;gap:4px;font-size:7px"><span style="background:#1b5e20;color:#fff;padding:1px 4px;border-radius:2px;font-weight:700">6429</span><span style="flex:1;color:#555">350 uds</span><span style="color:#2e7d32;font-weight:700">58%</span></div>
+              <div style="display:flex;align-items:center;gap:4px;font-size:7px"><span style="background:#0d47a1;color:#fff;padding:1px 4px;border-radius:2px;font-weight:700">2632</span><span style="flex:1;color:#555">120 uds</span><span style="color:#f57c00;font-weight:700">72%</span></div>
+              <div style="display:flex;align-items:center;gap:4px;font-size:7px"><span style="background:#bf360c;color:#fff;padding:1px 4px;border-radius:2px;font-weight:700">2671</span><span style="flex:1;color:#555">80 uds</span><span style="color:#2e7d32;font-weight:700">55%</span></div>
             </div>
           </div>
         </div>
@@ -1047,10 +1096,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#e8e8e8;color:#1a1a2
         </div>
       </div>
 
-      <div style="background:#ffebee;border:2px solid var(--red2);border-radius:8px;padding:12px 16px">
-        <div style="font-size:.85rem;font-weight:800;color:var(--red);margin-bottom:6px">¿Cuándo SÍ se puede usar?</div>
-        <div style="font-size:.74rem;color:#37474f;line-height:1.6">
-          Solo al <strong>inicializar la app por primera vez</strong> o cuando se necesite hacer una <strong>carga masiva completa</strong> del stock: se introducen las cantidades totales de cada referencia y se pulsa el botón para que la app las distribuya automáticamente por las zonas.
+      <div style="background:#fff3e0;border:2px solid var(--orange2);border-radius:8px;padding:12px 16px;display:flex;align-items:flex-start;gap:10px">
+        <div style="font-size:1.5rem;flex-shrink:0">🔒</div>
+        <div>
+          <div style="font-size:.82rem;font-weight:800;color:var(--orange);margin-bottom:4px">Función restringida</div>
+          <div style="font-size:.74rem;color:#37474f;line-height:1.6">
+            Esta función está reservada exclusivamente para el administrador de la aplicación, <strong>Mikel Ullate</strong>. Si necesitas inicializar o restablecer el stock del almacén, contacta directamente con él.
+          </div>
         </div>
       </div>
     </div>
@@ -1102,72 +1154,79 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#e8e8e8;color:#1a1a2
   <div class="col-full">
     <div class="accent-bar" style="background:linear-gradient(90deg,var(--navy),var(--navy2))"></div>
     <div class="section-title">Flujo de trabajo diario</div>
-    <div class="section-sub">Proceso operativo para jefes de turno</div>
+    <div class="section-sub">Dos escenarios habituales en el almacén</div>
 
-    <!-- Flow diagram -->
-    <div class="flow" style="margin-bottom:18px">
-      <div class="flow-step" style="border-color:#bbdefb;background:#e3f2fd">
-        <span class="flow-step-icon">📱</span>
-        <div class="flow-step-title" style="color:var(--blue)">Operario actúa</div>
-        <div class="flow-step-desc">Añade o retira contenedores físicamente del almacén</div>
+    <!-- FLUJO 1: Recepción -->
+    <div style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+        <div style="background:var(--blue);color:#fff;font-size:.65rem;font-weight:800;padding:2px 10px;border-radius:12px;white-space:nowrap">ESCENARIO 1</div>
+        <div style="font-size:.8rem;font-weight:700;color:var(--navy)">Recepción de mercancía — Entrada de contenedores</div>
       </div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-step" style="border-color:#c8e6c9;background:#e8f5e9">
-        <span class="flow-step-icon">📢</span>
-        <div class="flow-step-title" style="color:var(--green)">Informa al jefe</div>
-        <div class="flow-step-desc">Comunica: referencia, cantidad y número de fila</div>
-      </div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-step" style="border-color:#fff9c4;background:#fffde7">
-        <span class="flow-step-icon">🔍</span>
-        <div class="flow-step-title" style="color:#f9a825">Jefe consulta la app</div>
-        <div class="flow-step-desc">Verifica la fila, confirma que la referencia es correcta y hay espacio</div>
-      </div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-step" style="border-color:#c8e6c9;background:#e8f5e9">
-        <span class="flow-step-icon">✏️</span>
-        <div class="flow-step-title" style="color:var(--green)">Registra el cambio</div>
-        <div class="flow-step-desc">Pulsa + Añadir o − Restar, introduce fila y cantidad</div>
-      </div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-step" style="border-color:#bbdefb;background:#e3f2fd">
-        <span class="flow-step-icon">☁️</span>
-        <div class="flow-step-title" style="color:var(--blue)">Stock actualizado</div>
-        <div class="flow-step-desc">La base de datos se actualiza al instante para todos los dispositivos</div>
+      <div class="flow">
+        <div class="flow-step" style="border-color:#bbdefb;background:#e3f2fd">
+          <span class="flow-step-icon">📋</span>
+          <div class="flow-step-title" style="color:var(--blue)">Jefe recibe albarán</div>
+          <div class="flow-step-desc">Revisa las referencias y cantidades que van a entrar al almacén</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step" style="border-color:#fff9c4;background:#fffde7">
+          <span class="flow-step-icon">🔍</span>
+          <div class="flow-step-title" style="color:#f9a825">Consulta la app</div>
+          <div class="flow-step-desc">Identifica qué filas tienen espacio disponible para cada referencia del albarán</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step" style="border-color:#c8e6c9;background:#e8f5e9">
+          <span class="flow-step-icon">📢</span>
+          <div class="flow-step-title" style="color:var(--green)">Informa al operario</div>
+          <div class="flow-step-desc">Indica a qué fila debe llevar cada referencia para no abrir filas nuevas innecesarias</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step" style="border-color:#c8e6c9;background:#e8f5e9">
+          <span class="flow-step-icon">✏️</span>
+          <div class="flow-step-title" style="color:var(--green)">Registra la entrada</div>
+          <div class="flow-step-desc">Pulsa <strong>+ Añadir</strong>, introduce fila y cantidad confirmada por el operario</div>
+        </div>
       </div>
     </div>
 
-    <!-- Rules table -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div>
-        <div style="font-size:.75rem;font-weight:700;color:var(--navy);margin-bottom:6px">📋 Reglas de uso</div>
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <div style="display:flex;gap:6px;align-items:flex-start;font-size:.72rem;color:#37474f;padding:4px 0;border-bottom:1px solid #f0f0f0"><span style="color:var(--green);font-weight:700;flex-shrink:0">✓</span> Siempre registrar en la fila correcta para evitar mezclar referencias</div>
-          <div style="display:flex;gap:6px;align-items:flex-start;font-size:.72rem;color:#37474f;padding:4px 0;border-bottom:1px solid #f0f0f0"><span style="color:var(--green);font-weight:700;flex-shrink:0">✓</span> El jefe de turno decide en qué fila se añade o retira stock</div>
-          <div style="display:flex;gap:6px;align-items:flex-start;font-size:.72rem;color:#37474f;padding:4px 0;border-bottom:1px solid #f0f0f0"><span style="color:var(--green);font-weight:700;flex-shrink:0">✓</span> Pulsar 🔄 Actualizar al inicio del turno para ver el estado real</div>
-          <div style="display:flex;gap:6px;align-items:flex-start;font-size:.72rem;color:#37474f;padding:4px 0"><span style="color:var(--red);font-weight:700;flex-shrink:0">✗</span> No usar "Distribución automática" en operaciones normales</div>
+    <!-- FLUJO 2: Reembalado -->
+    <div style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+        <div style="background:var(--orange);color:#fff;font-size:.65rem;font-weight:800;padding:2px 10px;border-radius:12px;white-space:nowrap">ESCENARIO 2</div>
+        <div style="font-size:.8rem;font-weight:700;color:var(--navy)">Reembalado — Uso de contenedores en stock</div>
+      </div>
+      <div class="flow">
+        <div class="flow-step" style="border-color:#ffe0b2;background:#fff3e0">
+          <span class="flow-step-icon">📦</span>
+          <div class="flow-step-title" style="color:var(--orange)">Necesitan contenedores</div>
+          <div class="flow-step-desc">Producción solicita una referencia para el proceso de reembalado</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step" style="border-color:#fff9c4;background:#fffde7">
+          <span class="flow-step-icon">🔍</span>
+          <div class="flow-step-title" style="color:#f9a825">Jefe consulta la app</div>
+          <div class="flow-step-desc">Localiza la fila empezada de esa referencia para no abrir una segunda fila</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step" style="border-color:#ffe0b2;background:#fff3e0">
+          <span class="flow-step-icon">📢</span>
+          <div class="flow-step-title" style="color:var(--orange)">Informa al operario</div>
+          <div class="flow-step-desc">Indica el número de fila exacto de donde debe retirar los contenedores</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step" style="border-color:#ffcdd2;background:#ffebee">
+          <span class="flow-step-icon">✏️</span>
+          <div class="flow-step-title" style="color:var(--red)">Registra la salida</div>
+          <div class="flow-step-desc">Pulsa <strong>− Restar</strong>, introduce fila y cantidad retirada por el operario</div>
         </div>
       </div>
-      <div>
-        <div style="font-size:.75rem;font-weight:700;color:var(--navy);margin-bottom:6px">⚡ Referencia rápida de botones</div>
-        <div style="display:flex;flex-direction:column;gap:5px">
-          <div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:#e8f5e9;border-radius:4px">
-            <button class="mock-btn mock-btn-add" style="font-size:8px;padding:2px 8px">+ Añadir</button>
-            <span style="font-size:.7rem;color:#1b5e20">Registrar entrada de contenedores</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:#ffebee;border-radius:4px">
-            <button class="mock-btn mock-btn-sub" style="font-size:8px;padding:2px 8px">− Restar</button>
-            <span style="font-size:.7rem;color:#b71c1c">Registrar salida de contenedores</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:#e3f2fd;border-radius:4px">
-            <button class="mock-btn mock-btn-refresh" style="font-size:8px;padding:2px 8px">🔄 Actualizar</button>
-            <span style="font-size:.7rem;color:#0d47a1">Ver cambios de otros dispositivos</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:#f5f5f5;border-radius:4px">
-            <button class="mock-btn mock-btn-print" style="font-size:8px;padding:2px 8px">🖨 Imprimir</button>
-            <span style="font-size:.7rem;color:#546e7a">Imprimir/exportar a PDF</span>
-          </div>
-        </div>
+    </div>
+
+    <!-- Regla clave -->
+    <div style="background:linear-gradient(135deg,#e8f5e9,#e3f2fd);border-radius:8px;padding:10px 16px;border:1px solid #c8e6c9;display:flex;align-items:center;gap:12px">
+      <div style="font-size:1.4rem;flex-shrink:0">⭐</div>
+      <div style="font-size:.76rem;color:var(--navy);line-height:1.5">
+        <strong>Regla fundamental:</strong> El jefe de turno siempre indica al operario la fila exacta antes de actuar, tanto para entradas como para salidas. Esto garantiza que <strong>nunca haya dos filas abiertas con la misma referencia</strong> en el almacén.
       </div>
     </div>
   </div>
