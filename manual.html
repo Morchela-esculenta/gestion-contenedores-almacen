@@ -13,15 +13,29 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#e8e8e8;color:#1a1a2
 .slide{
   width:297mm;height:210mm;background:#fff;
   position:relative;overflow:hidden;
-  page-break-after:always;page-break-inside:avoid;
   margin:0 auto 12px;display:flex;flex-direction:column;
   box-shadow:0 4px 20px rgba(0,0,0,.15)
 }
 
 /* ── PRINT ── */
+@page{size:A4 landscape;margin:0}
 @media print{
-  body{background:#fff;margin:0;padding:0}
-  .slide{margin:0;box-shadow:none;page-break-after:always}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  html,body{width:297mm;height:210mm;margin:0;padding:0;background:#fff}
+  body{display:block}
+  .slide{
+    width:297mm;height:210mm;
+    margin:0;padding:0;
+    box-shadow:none;
+    page-break-after:always;
+    page-break-inside:avoid;
+    break-after:page;
+    break-inside:avoid;
+    display:flex;flex-direction:column;
+    overflow:hidden;
+    position:relative;
+  }
+  .slide:last-child{page-break-after:auto;break-after:auto}
 }
 
 /* ── COLORES ── */
@@ -262,6 +276,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#e8e8e8;color:#1a1a2
 .idx-desc{font-size:.7rem;color:#90a4ae;margin-top:1px}
 .idx-page{margin-left:auto;font-size:.72rem;font-weight:700;color:#b0bec5}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -1256,5 +1272,56 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#e8e8e8;color:#1a1a2
   </div>
 </div>
 
+<!-- Botón descargar PDF -->
+<div id="pdf-btn-wrap" style="position:fixed;bottom:28px;right:28px;z-index:9999">
+  <button id="pdf-btn" onclick="generarPDF()" style="
+    background:linear-gradient(135deg,#1a1a2e,#16213e);
+    color:#fff;border:none;padding:12px 24px;border-radius:8px;
+    font-size:.95rem;font-weight:700;cursor:pointer;
+    box-shadow:0 4px 18px rgba(0,0,0,.35);
+    display:flex;align-items:center;gap:8px;
+    transition:transform .15s,box-shadow .15s
+  " onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 24px rgba(0,0,0,.4)'"
+     onmouseout="this.style.transform='';this.style.boxShadow='0 4px 18px rgba(0,0,0,.35)'">
+    <span>⬇</span> Descargar PDF
+  </button>
+  <div id="pdf-progress" style="display:none;margin-top:8px;background:#fff;border-radius:6px;padding:8px 14px;font-size:.78rem;font-weight:600;color:#1a1a2e;box-shadow:0 2px 10px rgba(0,0,0,.15);text-align:center"></div>
+</div>
+
+<script>
+async function generarPDF() {
+  const btn = document.getElementById('pdf-btn');
+  const prog = document.getElementById('pdf-progress');
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Generando...';
+  prog.style.display = 'block';
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const slides = document.querySelectorAll('.slide');
+
+  for (let i = 0; i < slides.length; i++) {
+    prog.textContent = `Procesando página ${i + 1} de ${slides.length}...`;
+    const canvas = await html2canvas(slides[i], {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      logging: false,
+      backgroundColor: '#ffffff',
+      width: slides[i].offsetWidth,
+      height: slides[i].offsetHeight
+    });
+    const img = canvas.toDataURL('image/jpeg', 0.92);
+    if (i > 0) doc.addPage('a4', 'landscape');
+    doc.addImage(img, 'JPEG', 0, 0, 297, 210);
+  }
+
+  doc.save('Manual-Gestion-Contenedores-TIAuto.pdf');
+  btn.disabled = false;
+  btn.innerHTML = '<span>⬇</span> Descargar PDF';
+  prog.textContent = '✅ PDF guardado correctamente';
+  setTimeout(() => { prog.style.display = 'none'; }, 3000);
+}
+</script>
 </body>
 </html>

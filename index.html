@@ -120,6 +120,34 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .mhint{font-size:.68rem;color:#aaa;margin-top:3px}
 .minfo{background:#f8f9fa;border-radius:7px;padding:9px 11px;font-size:.75rem;border-left:3px solid #ccc}
 .minfo strong{color:var(--text)}
+/* ── Jaula ── */
+.z-jaula .zhdr{background:linear-gradient(90deg,#92400e,#b45309)}
+.cage-row{padding:5px 10px;border-bottom:1px solid #fef3c7;background:#fffbf5}
+.cage-row:last-child{border-bottom:none}
+.cage-row-hdr{display:flex;align-items:center;gap:6px;font-size:.68rem;font-weight:700;color:#92400e;margin-bottom:2px}
+.cage-item{display:flex;align-items:center;gap:5px;padding:1px 0;font-size:.69rem}
+.cage-item-ref{display:inline-block;padding:1px 6px;border-radius:4px;font-weight:700;font-size:.67rem;color:#fff}
+.cage-empty{color:#bbb;font-size:.69rem;font-style:italic}
+/* ── Combo badges ── */
+.combo-badge{font-size:.62rem;padding:1px 5px;border-radius:3px;font-weight:700;white-space:nowrap}
+.combo-green{background:#dcfce7;color:#14532d}
+.combo-grey{background:#e2e8f0;color:#1e293b}
+/* ── Leyenda ── */
+.leyenda{display:flex;flex-direction:column;gap:5px}
+.leyenda-row{display:flex;align-items:center;gap:8px;font-size:.71rem;color:#555}
+.leyenda-swatches{display:flex;gap:3px}
+.leyenda-dot{width:11px;height:11px;border-radius:2px;flex-shrink:0}
+/* ── Pending combo ── */
+.pending-badge{background:#fff3cd;color:#856404;font-size:.63rem;padding:1px 5px;border-radius:3px;font-weight:700}
+/* ── Suggest button ── */
+.btn-suggest{background:linear-gradient(135deg,#1565c0,#1e88e5);color:#fff;border:none;padding:0 16px;height:34px;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:700;box-shadow:0 2px 6px rgba(21,101,192,.3);transition:transform .1s;margin-left:4px;align-self:flex-end}
+.btn-suggest:hover{transform:translateY(-1px)}
+.btn-suggest:active{transform:translateY(0)}
+/* ── Cage stats ── */
+.cage-stat{padding:5px 0;border-bottom:1px solid #f5f5f5;font-size:.73rem}
+.cage-stat:last-child{border-bottom:none}
+.cage-stat-ref{font-weight:700;color:#444}
+.cage-stat-line{padding-left:10px;color:#666;font-size:.7rem}
 /* print */
 @media print{
   body{background:#fff;font-size:11px}
@@ -156,6 +184,29 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
   <button class="btn-calc" onclick="calculate()">▶ Distribución automática</button>
   <button class="btn-add" onclick="openModal('add')">+ Añadir</button>
   <button class="btn-sub" onclick="openModal('sub')">− Restar</button>
+  <button class="btn-suggest" onclick="openSuggestModal()">🗺 Sugerir ubicación</button>
+</div>
+
+<!-- Modal sugerir ubicación -->
+<div class="moverlay" id="soverlay" onclick="if(event.target===this)closeSuggestModal()">
+  <div class="mcard" style="width:460px">
+    <div id="stitle"></div>
+    <div id="sbody"></div>
+    <div id="sresult" style="margin-top:10px"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;padding-top:12px;border-top:1px solid #f0f0f0">
+      <button onclick="closeSuggestModal()"
+        style="padding:8px 18px;border:1px solid #e0e0e0;border-radius:6px;background:#f5f5f5;cursor:pointer;font-size:.85rem;font-weight:600;color:#555">
+        Cancelar
+      </button>
+      <button id="s-calc" onclick="runSuggest()"
+        style="padding:8px 22px;border:none;border-radius:6px;color:#fff;background:linear-gradient(135deg,#1565c0,#1e88e5);cursor:pointer;font-size:.85rem;font-weight:700">
+        Calcular sugerencia
+      </button>
+      <button id="s-apply" onclick="applySuggestion()" style="display:none;padding:8px 22px;border:none;border-radius:6px;color:#fff;background:linear-gradient(135deg,#2e7d32,#388e3c);cursor:pointer;font-size:.85rem;font-weight:700">
+        Aplicar sugerencia
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- Modal añadir / restar -->
@@ -183,6 +234,104 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 
 <script>
 'use strict';
+
+// ═══════════════════════════════════════════════════════
+// CONFIGURACIÓN CENTRALIZADA — modificar aquí, nunca en otro sitio
+// ═══════════════════════════════════════════════════════
+
+const SPECIAL_REFERENCES = {
+  '6429': { boxesPerPallet: 15 },
+  '4329': { boxesPerPallet: 15 },
+  '6415': { boxesPerPallet: 30 },
+};
+
+const BASE_TAPA_COMBINATIONS = {
+  GREEN_GREEN: {
+    label: 'Base verde + tapa verde',
+    shortLabel: '5010/9040',
+    baseRef: '5010', baseName: 'Base verde (5010)',
+    tapaRef: '9040', tapaName: 'Tapa verde (9040)',
+  },
+  GREY_BLACK: {
+    label: 'Base gris + tapa negra',
+    shortLabel: '5002/9670',
+    baseRef: '5002', baseName: 'Base gris (5002)',
+    tapaRef: '9670', tapaName: 'Tapa negra (9670)',
+  },
+};
+
+const SPECIAL_REF_COLORS = {
+  GREEN_GREEN: { '6429': '#15803D', '4329': '#22C55E', '6415': '#65A30D' },
+  GREY_BLACK:  { '6429': '#374151', '4329': '#64748B', '6415': '#475569' },
+};
+
+const CAGE_CONFIG = {
+  id: 'jaula', name: 'Jaula / Rotos', dot: '#92400e', cls: 'z-jaula',
+  rows: 6, capacity: 30, startRn: 51,
+};
+
+const NORMAL_ZONE_ORDER = ['zona1','baterias','zona2','calle','tunel','pasillomuelle'];
+
+// ═══════════════════════════════════════════════════════
+// FUNCIONES AUXILIARES
+// ═══════════════════════════════════════════════════════
+
+function isSpecialReference(ref) { return ref in SPECIAL_REFERENCES; }
+function getBoxesPerPallet(ref)  { return SPECIAL_REFERENCES[ref]?.boxesPerPallet ?? 1; }
+function calculateBoxes(ref, pallets) { return pallets * getBoxesPerPallet(ref); }
+
+function getStorageKey(ref, combinationKey) {
+  return (isSpecialReference(ref) && combinationKey) ? `${ref}_${combinationKey}` : ref;
+}
+
+function getRefColor(ref, combinationKey) {
+  if (isSpecialReference(ref) && combinationKey && SPECIAL_REF_COLORS[combinationKey]?.[ref])
+    return SPECIAL_REF_COLORS[combinationKey][ref];
+  return REFS[ref]?.color || '#999';
+}
+
+// Valida si se puede añadir ref+combo a una fila normal
+// Devuelve { ok, msg, willSetCombination }
+function canAddToRow(row, ref, combinationKey) {
+  if (row.ref === null) return { ok: true };
+  if (row.ref !== ref) return { ok: false, msg: 'Esta fila ya contiene otra referencia.' };
+  if (isSpecialReference(ref)) {
+    if (row.combinationKey === null) return { ok: true, willSetCombination: true }; // datos legados
+    if (row.combinationKey !== combinationKey)
+      return { ok: false, msg: 'Esta fila contiene la misma referencia, pero con otra combinación base/tapa. No se permite mezclar.' };
+  }
+  if (row.cnt >= row.cap) return { ok: false, msg: 'La fila está llena, sin espacio disponible.' };
+  return { ok: true };
+}
+
+function isCageRn(rn) {
+  return rn >= CAGE_CONFIG.startRn && rn <= CAGE_CONFIG.startRn + CAGE_CONFIG.rows - 1;
+}
+function cageLabel(rn) { return 'J' + (rn - CAGE_CONFIG.startRn + 1); }
+function getAvailableCapacity(row) { return row.cap - row.cnt; }
+function combLabel(key) { return BASE_TAPA_COMBINATIONS[key]?.shortLabel || key; }
+function combClass(key) { return key === 'GREEN_GREEN' ? 'combo-green' : 'combo-grey'; }
+
+// Parsea entrada del modal: "5" → 5, "J3" → 53
+function parseRowInput(val) {
+  val = String(val).trim().toUpperCase();
+  const jMatch = val.match(/^J([1-6])$/);
+  if (jMatch) return CAGE_CONFIG.startRn + parseInt(jMatch[1]) - 1;
+  const n = parseInt(val);
+  return (!isNaN(n) && n >= 1 && n <= TOTAL_ROWS) ? n : null;
+}
+
+// Devuelve los rn de zonas normales en orden de llenado
+function normalRowOrder() {
+  const order = [];
+  for (const zid of NORMAL_ZONE_ORDER) {
+    const z = gz(zid);
+    if (z) for (let i = 0; i < z.n; i++) order.push(z.sr + i);
+  }
+  return order;
+}
+
+// ═══════════════════════════════════════════════════════
 
 const REFS = {
   '6429':  {h:5,  t:'L', label:'Grande', color:'#1b5e20'},
@@ -217,6 +366,7 @@ const VORDER = ['pasillomuelle','tunel','calle','zona2','baterias','zona1'];
 const TOTAL_ROWS = ZONES.reduce((s,z)=>s+z.n,0); // 50
 
 let rows = [];
+let cageRows = {}; // { 51: {rn,jLabel,zone,cap,items[]}, ..., 56: {...} }
 
 function gz(id){ return ZONES.find(z=>z.id===id); }
 
@@ -225,11 +375,20 @@ function rowCap(zid, ref){
   return (r.t==='L'?z.lb:z.sb)*r.h;
 }
 
-function initRows(){
+function initNormalRows(){
   rows=[null];
   for(const z of ZONES)
     for(let i=0;i<z.n;i++)
-      rows.push({rn:z.sr+i, zone:z.id, ref:null, cnt:0, cap:0});
+      rows.push({rn:z.sr+i, zone:z.id, ref:null, cnt:0, cap:0, combinationKey:null});
+}
+
+// Inicializa cage solo si aún no existen (no destruye datos cargados)
+function ensureCageRows(){
+  for(let i=0; i<CAGE_CONFIG.rows; i++){
+    const rn = CAGE_CONFIG.startRn + i;
+    if(!cageRows[rn])
+      cageRows[rn] = { rn, jLabel:'J'+(i+1), zone:CAGE_CONFIG.id, cap:CAGE_CONFIG.capacity, items:[] };
+  }
 }
 
 // Build inputs
@@ -250,7 +409,7 @@ function initRows(){
 })();
 
 async function calculate(){
-  initRows();
+  initNormalRows();
   const stock={}, overflow={};
   for(const ref of ORDER) stock[ref]=Math.max(0,parseInt(document.getElementById('i_'+ref).value)||0);
 
@@ -269,12 +428,23 @@ async function calculate(){
     if(rem>0) overflow[ref]=rem;
   }
 
-  const now=new Date();
-  document.getElementById('ts').textContent=
-    `Calculado: ${now.toLocaleDateString('es-ES')} ${now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}`;
+  // Las refs especiales quedan sin combinationKey tras distribución automática.
+  // El usuario debe clasificar cada fila manualmente con "Añadir" para asignar base/tapa.
+  const specialWithStock = ['6429','4329','6415'].some(r => (stock[r]||0) > 0);
+
+  _setTimestamp('Calculado');
 
   renderVisual();
   renderStats(stock,overflow);
+
+  if (specialWithStock) {
+    const c5 = document.getElementById('stats')?.querySelector('.card:last-child');
+    // Añade aviso al card de observaciones si hay refs especiales sin clasificar
+    const obs = document.createElement('div');
+    obs.className = 'obs obs-warn';
+    obs.innerHTML = '<span class="obs-ico">⚠️</span><span>Las referencias 6429, 4329 y 6415 distribuidas necesitan clasificación de base/tapa. Usa <strong>Añadir</strong> en cada fila para asignar combinación.</span>';
+    if (c5) c5.appendChild(obs);
+  }
 
   const hayStock = rows.slice(1).some(r => r.ref !== null && r.cnt > 0);
   if (!hayStock) {
@@ -312,19 +482,29 @@ function renderVisual(){
       const rpct=row.cap>0?Math.round(row.cnt/row.cap*100):0;
       const rd=row.ref?REFS[row.ref]:null;
       const filled=row.cap>0?Math.round(row.cnt/row.cap*z.vb):0;
+      // Color diferenciado por referencia especial + combinación
+      const cellColor = rd ? getRefColor(row.ref, row.combinationKey) : null;
 
       let cells='';
       const cw=Math.max(10,Math.floor((z.vb<=6?16:z.vb<=10?14:12)));
       for(let c=0;c<z.vb;c++){
         const f=c<filled;
-        cells+=`<div class="cell ${f?'':'empty'}" style="width:${cw}px;${f&&rd?'background:'+rd.color:''}"></div>`;
+        cells+=`<div class="cell ${f?'':'empty'}" style="width:${cw}px;${f&&cellColor?'background:'+cellColor:''}"></div>`;
       }
 
-      const rstyle=rd?`color:#fff;background:${rd.color};`:'color:#ccc;';
+      const rstyle=cellColor?`color:#fff;background:${cellColor};`:'color:#ccc;';
+      // Mostrar badge de combo para referencias especiales
+      const comboBadge = (row.ref && isSpecialReference(row.ref) && row.combinationKey)
+        ? `<span class="combo-badge ${combClass(row.combinationKey)}" style="margin-left:3px">${combLabel(row.combinationKey)}</span>`
+        : (row.ref && isSpecialReference(row.ref) && !row.combinationKey)
+          ? `<span class="pending-badge">?</span>`
+          : '';
+
       rhtml+=`
         <div class="ritem">
           <div class="rn">F${row.rn}</div>
           <div class="rref" style="${rstyle}">${row.ref||'—'}</div>
+          ${comboBadge}
           <div class="rcells">${cells}</div>
           <div class="rbar"><div class="rbar-f" style="width:${rpct}%"></div></div>
           <div class="rpct">${row.ref?rpct+'%':''}</div>
@@ -341,6 +521,60 @@ function renderVisual(){
       <div class="zrows">${rhtml}</div>`;
     panel.appendChild(block);
   }
+
+  // Sección Jaula al final del panel visual
+  renderCageVisual(panel);
+}
+
+function renderCageVisual(panel){
+  ensureCageRows();
+  const totalCap  = CAGE_CONFIG.rows * CAGE_CONFIG.capacity;
+  const totalUsed = Object.values(cageRows).reduce((s,cr)=>s+cr.items.reduce((a,it)=>a+it.cnt,0),0);
+  const usedRows  = Object.values(cageRows).filter(cr=>cr.items.length>0).length;
+
+  const block = document.createElement('div');
+  block.className = 'zblock z-jaula';
+
+  let rhtml = '';
+  for(let i=0; i<CAGE_CONFIG.rows; i++){
+    const rn = CAGE_CONFIG.startRn + i;
+    const cr = cageRows[rn];
+    const usedCnt = cr.items.reduce((s,it)=>s+it.cnt, 0);
+    const pct = Math.round(usedCnt/cr.cap*100);
+
+    let itemsHtml = cr.items.length === 0
+      ? '<div class="cage-empty">Vacía</div>'
+      : cr.items.map(it => {
+          const color = getRefColor(it.ref, it.combinationKey);
+          const boxInfo = isSpecialReference(it.ref) ? ` · ${calculateBoxes(it.ref, it.cnt)} cj` : '';
+          const badge = it.combinationKey
+            ? `<span class="combo-badge ${combClass(it.combinationKey)}">${combLabel(it.combinationKey)}</span>`
+            : '';
+          return `<div class="cage-item">
+            <span class="cage-item-ref" style="background:${color}">${it.ref}</span>
+            ${badge}
+            <span style="color:#555">${it.cnt} ud${boxInfo}</span>
+          </div>`;
+        }).join('');
+
+    rhtml += `
+      <div class="cage-row">
+        <div class="cage-row-hdr">
+          <span>${cr.jLabel}</span>
+          <span style="font-weight:400;color:#aaa">${usedCnt}/${cr.cap} · ${pct}%</span>
+        </div>
+        ${itemsHtml}
+      </div>`;
+  }
+
+  block.innerHTML = `
+    <div class="zhdr">
+      <span class="zname">${CAGE_CONFIG.name}</span>
+      <span class="zmeta">J1–J6 · cap. ${CAGE_CONFIG.capacity}/fila</span>
+      <span class="zmeta">${totalUsed}/${totalCap} · ${usedRows} filas usadas</span>
+    </div>
+    <div class="zrows">${rhtml}</div>`;
+  panel.appendChild(block);
 }
 
 function renderStats(stock,overflow){
@@ -407,6 +641,30 @@ function renderStats(stock,overflow){
     </div>`;
   panel.appendChild(c3);
 
+  // ── Card: Leyenda base/tapa ──────────────────────
+  const cLey = document.createElement('div');
+  cLey.className = 'card';
+  cLey.innerHTML = `
+    <div class="ctitle">Leyenda base / tapa</div>
+    <div class="leyenda">
+      <div class="leyenda-row">
+        <div class="leyenda-swatches">
+          ${Object.entries(SPECIAL_REF_COLORS.GREEN_GREEN).map(([,c])=>`<div class="leyenda-dot" style="background:${c}"></div>`).join('')}
+        </div>
+        <span><strong>Gama verde</strong> · Base 5010 + Tapa 9040</span>
+      </div>
+      <div class="leyenda-row">
+        <div class="leyenda-swatches">
+          ${Object.entries(SPECIAL_REF_COLORS.GREY_BLACK).map(([,c])=>`<div class="leyenda-dot" style="background:${c}"></div>`).join('')}
+        </div>
+        <span><strong>Gama gris</strong> · Base 5002 + Tapa 9670</span>
+      </div>
+      <div class="leyenda-row" style="margin-top:3px;font-size:.68rem;color:#aaa">
+        Dentro de cada gama: 6429 · 4329 · 6415 (izq → der)
+      </div>
+    </div>`;
+  panel.appendChild(cLey);
+
   // ── Card: Tabla de referencias ───────────────────
   const active=ORDER.filter(r=>(stock[r]||0)>0);
   if(active.length>0){
@@ -415,7 +673,7 @@ function renderStats(stock,overflow){
     let h4=`
       <div class="ctitle">Referencias actuales</div>
       <table class="rtbl">
-        <thead><tr><th>Ref.</th><th>Stock</th><th>Filas</th><th>Cap.</th><th>%</th></tr></thead>
+        <thead><tr><th>Ref.</th><th>Cajas/Uds</th><th>Filas</th><th>Cap.</th><th>%</th></tr></thead>
         <tbody>`;
     for(const ref of active){
       const rd=REFS[ref];
@@ -425,13 +683,22 @@ function renderStats(stock,overflow){
       const rp=rc>0?Math.round(ru/rc*100):0;
       const ov=overflow[ref]||0;
       const pc=rp>=90?'#d32f2f':rp>=70?'#f57c00':'#2e7d32';
+      const isSp = isSpecialReference(ref);
+      // Para refs especiales: mostrar cajas. Para normales: unidades tal cual
+      const stockDisplay = isSp
+        ? `${calculateBoxes(ref, stock[ref]).toLocaleString('es-ES')} cj`
+        : stock[ref].toLocaleString('es-ES');
+      const capDisplay = isSp
+        ? `${calculateBoxes(ref, rc).toLocaleString('es-ES')} cj`
+        : rc.toLocaleString('es-ES');
+      // Color del chip: para especiales usa color de REFS (sin combo, solo ref)
+      const chipColor = rd.color;
       h4+=`
         <tr>
-          <td><span class="rchip" style="background:${rd.color}">${ref}</span></td>
-          <td>${(stock[ref]).toLocaleString('es-ES')}${ov>0?`<br><small style="color:#d32f2f;font-weight:700">+${ov} exceso</small>`:''}
-          </td>
+          <td><span class="rchip" style="background:${chipColor}">${ref}</span></td>
+          <td>${stockDisplay}${ov>0?`<br><small style="color:#d32f2f;font-weight:700">+${calculateBoxes(ref,ov)} exceso</small>`:''}</td>
           <td style="font-weight:600">${rr.length}</td>
-          <td>${rc.toLocaleString('es-ES')}</td>
+          <td>${capDisplay}</td>
           <td style="font-weight:700;color:${pc}">${rp}%</td>
         </tr>`;
     }
@@ -495,6 +762,53 @@ function renderStats(stock,overflow){
 
   c5.innerHTML=h5;
   panel.appendChild(c5);
+
+  // ── Card: Jaula / Rotos ──────────────────────────
+  ensureCageRows();
+  const cJaula = document.createElement('div');
+  cJaula.className = 'card';
+  const cageTotalCap  = CAGE_CONFIG.rows * CAGE_CONFIG.capacity;
+  const cageTotalUsed = Object.values(cageRows).reduce((s,cr)=>s+cr.items.reduce((a,it)=>a+it.cnt,0),0);
+  const cageUsedRows  = Object.values(cageRows).filter(cr=>cr.items.length>0).length;
+
+  // Agrupa todos los items de Jaula por referencia+combo
+  const cageGrouped = {};
+  Object.values(cageRows).forEach(cr => {
+    cr.items.forEach(it => {
+      const key = getStorageKey(it.ref, it.combinationKey);
+      if(!cageGrouped[key]) cageGrouped[key] = { ref:it.ref, combinationKey:it.combinationKey, cnt:0 };
+      cageGrouped[key].cnt += it.cnt;
+    });
+  });
+
+  let hJaula = `
+    <div class="ctitle">Jaula / Rotos</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+      <div class="si"><div class="si-val" style="color:#92400e">${cageTotalUsed}/${cageTotalCap}</div><div class="si-lbl">Ocupación</div></div>
+      <div class="si"><div class="si-val" style="color:#92400e">${cageUsedRows}/${CAGE_CONFIG.rows}</div><div class="si-lbl">Filas usadas</div></div>
+    </div>`;
+
+  if(Object.keys(cageGrouped).length === 0){
+    hJaula += `<div style="color:#bbb;font-size:.72rem;font-style:italic">Jaula vacía.</div>`;
+  } else {
+    for(const [,g] of Object.entries(cageGrouped)){
+      const color = getRefColor(g.ref, g.combinationKey);
+      const isSp  = isSpecialReference(g.ref);
+      const badge = g.combinationKey
+        ? `<span class="combo-badge ${combClass(g.combinationKey)}">${combLabel(g.combinationKey)}</span>`
+        : '';
+      const boxInfo = isSp ? ` · ${calculateBoxes(g.ref,g.cnt)} cajas` : '';
+      hJaula += `<div class="cage-stat">
+        <div class="cage-stat-ref">
+          <span class="rchip" style="background:${color}">${g.ref}</span> ${badge}
+        </div>
+        <div class="cage-stat-line">${g.cnt} ud${boxInfo}</div>
+      </div>`;
+    }
+  }
+
+  cJaula.innerHTML = hJaula;
+  panel.appendChild(cJaula);
 }
 
 // ── Modal ────────────────────────────────────────────────
@@ -513,15 +827,28 @@ function openModal(mode) {
 
   document.getElementById('mbody').innerHTML = `
     <div class="mfld" style="margin-bottom:10px">
-      <label>Número de fila (1 – ${TOTAL_ROWS})</label>
-      <input type="number" id="m-rownum" min="1" max="${TOTAL_ROWS}" placeholder="Ej: 5"
-        oninput="updateMInfo()" style="text-align:center">
+      <label>Número de fila (1–${TOTAL_ROWS} almacén · J1–J6 Jaula)</label>
+      <input type="text" id="m-rownum" placeholder="Ej: 5 o J2"
+        oninput="updateMInfo()" style="text-align:center;width:100%;padding:8px 10px;border:2px solid #e0e0e0;border-radius:6px;font-size:.95rem;font-weight:600">
     </div>
     <div id="m-infobox" style="margin-bottom:10px;min-height:36px"></div>
     <div id="m-refgroup" class="mfld" style="display:none;margin-bottom:10px">
       <label>Referencia a introducir</label>
       <select id="m-ref" onchange="updateMRefCap()">
         ${ORDER.map(r=>`<option value="${r}">${r} · altura ${REFS[r].h} · ${REFS[r].label}</option>`).join('')}
+      </select>
+    </div>
+    <div id="m-combogroup" class="mfld" style="display:none;margin-bottom:10px">
+      <label>Combinación base / tapa</label>
+      <select id="m-combo" onchange="updateMRefCap()">
+        <option value="">Selecciona combinación…</option>
+        ${Object.entries(BASE_TAPA_COMBINATIONS).map(([k,c])=>`<option value="${k}">${c.label} (${c.shortLabel})</option>`).join('')}
+      </select>
+    </div>
+    <div id="m-cage-subgroup" class="mfld" style="display:none;margin-bottom:10px">
+      <label>Item a restar (selecciona línea)</label>
+      <select id="m-cage-item-sel" onchange="updateCageSubQty()">
+        <option value="">Selecciona item…</option>
       </select>
     </div>
     <div id="m-qtygroup" class="mfld" style="display:none">
@@ -550,59 +877,114 @@ function setOk(enabled) {
 }
 
 function updateMInfo() {
-  const n = parseInt(document.getElementById('m-rownum').value);
-  const box = document.getElementById('m-infobox');
-  const rg = document.getElementById('m-refgroup');
-  const qg = document.getElementById('m-qtygroup');
-  rg.style.display = 'none'; qg.style.display = 'none'; setOk(false);
+  const rawVal = document.getElementById('m-rownum').value;
+  const n = parseRowInput(rawVal);
+  const box  = document.getElementById('m-infobox');
+  const rg   = document.getElementById('m-refgroup');
+  const cg   = document.getElementById('m-combogroup');
+  const qg   = document.getElementById('m-qtygroup');
+  const csg  = document.getElementById('m-cage-subgroup');
+  [rg, cg, qg, csg].forEach(el => el.style.display = 'none');
+  setOk(false);
 
-  if (!n || n < 1 || n > TOTAL_ROWS) { box.innerHTML = ''; return; }
+  if (n === null) { box.innerHTML = ''; return; }
+
+  // ── Fila de Jaula ──────────────────────────────────
+  if (isCageRn(n)) {
+    ensureCageRows();
+    const cr = cageRows[n];
+    const usedCnt = cr.items.reduce((s,it)=>s+it.cnt, 0);
+    const free = cr.cap - usedCnt;
+
+    box.innerHTML = `<div class="minfo" style="border-color:#b45309;background:#fef3c7;color:#78350f">
+      <strong>Zona Jaula · ${cr.jLabel}</strong><br>
+      Área para rotos o devoluciones. No cuenta como stock disponible.<br>
+      Se permite mezclar referencias y combinaciones.<br>
+      Ocupación: <strong>${usedCnt}/${cr.cap}</strong> · Libre: <strong>${free}</strong>
+    </div>`;
+
+    if (mMode === 'add') {
+      if (free <= 0) {
+        box.innerHTML += `<div style="color:#d32f2f;font-size:.72rem;margin-top:5px">⚠ Fila Jaula llena.</div>`;
+        return;
+      }
+      rg.style.display = 'block';
+      qg.style.display = 'block';
+      updateMRefCap();
+      setOk(true);
+    } else {
+      if (cr.items.length === 0) {
+        box.innerHTML += `<div style="color:#b45309;font-size:.72rem;margin-top:5px">Fila vacía — nada que restar.</div>`;
+        return;
+      }
+      const sel = document.getElementById('m-cage-item-sel');
+      sel.innerHTML = '<option value="">Selecciona item…</option>' +
+        cr.items.map((it, idx) => {
+          const isSp = isSpecialReference(it.ref);
+          const combo = it.combinationKey ? ` · ${combLabel(it.combinationKey)}` : '';
+          const boxes = isSp ? ` (${calculateBoxes(it.ref, it.cnt)} cj)` : '';
+          return `<option value="${idx}">${it.ref}${combo} · ${it.cnt} ud${boxes}</option>`;
+        }).join('');
+      csg.style.display = 'block';
+      setOk(false); // se habilita al seleccionar item
+    }
+    return;
+  }
+
+  // ── Fila normal ─────────────────────────────────────
   const row = rows[n];
   if (!row) { box.innerHTML = ''; return; }
 
-  const z = gz(row.zone);
+  const z  = gz(row.zone);
   const zc = {zona1:'#4caf50',baterias:'#1e88e5',zona2:'#f57c00',calle:'#e53935',tunel:'#8e24aa',pasillomuelle:'#455a64'}[row.zone];
 
   if (mMode === 'add') {
     if (row.ref) {
-      const rd = REFS[row.ref];
-      const space = row.cap - row.cnt;
-      const pct = Math.round(row.cnt / row.cap * 100);
+      const color  = getRefColor(row.ref, row.combinationKey);
+      const space  = row.cap - row.cnt;
+      const combo  = row.combinationKey ? `<span class="combo-badge ${combClass(row.combinationKey)}">${combLabel(row.combinationKey)}</span>` : '';
       box.innerHTML = `<div class="minfo" style="border-color:${zc}">
-        <span style="background:${rd.color};color:#fff;padding:1px 6px;border-radius:3px;font-size:.7rem;font-weight:700">${row.ref}</span>
-        &nbsp;·&nbsp;<span style="color:${zc};font-weight:700">${z.name}</span><br>
+        <span style="background:${color};color:#fff;padding:1px 6px;border-radius:3px;font-size:.7rem;font-weight:700">${row.ref}</span>
+        ${combo}&nbsp;·&nbsp;<span style="color:${zc};font-weight:700">${z.name}</span><br>
         Ocupado: <strong>${row.cnt}</strong> / ${row.cap} · Disponible: <strong style="color:${space>0?'#2e7d32':'#d32f2f'}">${space}</strong>
       </div>`;
       if (space <= 0) {
-        box.innerHTML += `<div style="color:#d32f2f;font-size:.72rem;margin-top:5px">⚠ Fila llena, sin espacio disponible.</div>`;
-      } else {
-        qg.style.display = 'block';
-        document.getElementById('m-qty').max = space;
-        document.getElementById('m-hint').textContent = `Máximo disponible: ${space}`;
-        setOk(true);
+        box.innerHTML += `<div style="color:#d32f2f;font-size:.72rem;margin-top:5px">⚠ Fila llena.</div>`;
+        return;
       }
+      // Si es ref especial sin combo (datos legados), pedir clasificación
+      if (isSpecialReference(row.ref) && !row.combinationKey) {
+        box.innerHTML += `<div style="background:#fff3cd;color:#856404;font-size:.72rem;padding:5px 8px;border-radius:4px;margin-top:5px">
+          Esta fila tiene ref. ${row.ref} sin combinación base/tapa. Selecciona para clasificar.</div>`;
+        cg.style.display = 'block';
+      }
+      qg.style.display = 'block';
+      document.getElementById('m-qty').max = space;
+      document.getElementById('m-hint').textContent = `Máximo disponible: ${space}`;
+      setOk(true);
     } else {
       box.innerHTML = `<div class="minfo" style="border-color:${zc}">
         <span style="color:${zc};font-weight:700">${z.name}</span> · Fila vacía<br>
-        <span style="color:#888">Selecciona referencia y cantidad a introducir</span>
+        <span style="color:#888">Selecciona referencia y cantidad</span>
       </div>`;
       rg.style.display = 'block';
       qg.style.display = 'block';
       updateMRefCap();
       setOk(true);
     }
-  } else {
+  } else { // sub
     if (!row.ref) {
       box.innerHTML = `<div class="minfo" style="border-color:#f57c00;background:#fff3e0;color:#6d4c00">
         Fila vacía — no hay contenedores que restar.
       </div>`;
     } else {
-      const rd = REFS[row.ref];
-      const pct = Math.round(row.cnt / row.cap * 100);
+      const color = getRefColor(row.ref, row.combinationKey);
+      const pct   = Math.round(row.cnt / row.cap * 100);
+      const combo = row.combinationKey ? `<span class="combo-badge ${combClass(row.combinationKey)}">${combLabel(row.combinationKey)}</span>` : '';
       box.innerHTML = `<div class="minfo" style="border-color:${zc}">
-        <span style="background:${rd.color};color:#fff;padding:1px 6px;border-radius:3px;font-size:.7rem;font-weight:700">${row.ref}</span>
-        &nbsp;·&nbsp;<span style="color:${zc};font-weight:700">${z.name}</span><br>
-        Contenedores actuales: <strong>${row.cnt}</strong> / ${row.cap} (${pct}%)
+        <span style="background:${color};color:#fff;padding:1px 6px;border-radius:3px;font-size:.7rem;font-weight:700">${row.ref}</span>
+        ${combo}&nbsp;·&nbsp;<span style="color:${zc};font-weight:700">${z.name}</span><br>
+        Contenedores: <strong>${row.cnt}</strong> / ${row.cap} (${pct}%)
       </div>`;
       qg.style.display = 'block';
       document.getElementById('m-qty').max = row.cnt;
@@ -612,12 +994,47 @@ function updateMInfo() {
   }
 }
 
+// Habilita OK al seleccionar item en restar Jaula
+function updateCageSubQty() {
+  const sel = document.getElementById('m-cage-item-sel');
+  const idx = sel.value;
+  const qg  = document.getElementById('m-qtygroup');
+  if (idx === '') { qg.style.display = 'none'; setOk(false); return; }
+
+  const n  = parseRowInput(document.getElementById('m-rownum').value);
+  const cr = cageRows[n];
+  const it = cr.items[parseInt(idx)];
+  qg.style.display = 'block';
+  document.getElementById('m-qty').max = it.cnt;
+  document.getElementById('m-hint').textContent = `Máximo a restar: ${it.cnt}`;
+  setOk(true);
+}
+
 function updateMRefCap() {
-  const n = parseInt(document.getElementById('m-rownum').value);
-  if (!n || n < 1 || n > TOTAL_ROWS) return;
-  const row = rows[n];
-  if (!row || row.ref) return;
   const ref = document.getElementById('m-ref')?.value;
+  const cg  = document.getElementById('m-combogroup');
+
+  // Mostrar/ocultar combo según ref seleccionada
+  if (cg) cg.style.display = (ref && isSpecialReference(ref)) ? 'block' : 'none';
+
+  const n = parseRowInput(document.getElementById('m-rownum').value);
+  if (n === null) return;
+
+  if (isCageRn(n)) {
+    // Para Jaula: capacidad es lo que quede libre en esa fila
+    ensureCageRows();
+    const cr = cageRows[n];
+    const usedCnt = cr.items.reduce((s,it)=>s+it.cnt,0);
+    const free = cr.cap - usedCnt;
+    if(document.getElementById('m-hint'))
+      document.getElementById('m-hint').textContent = `Espacio libre en ${cr.jLabel}: ${free}`;
+    if(document.getElementById('m-qty'))
+      document.getElementById('m-qty').max = free;
+    return;
+  }
+
+  const row = rows[n];
+  if (!row || row.ref) return; // si ya tiene ref, la capacidad ya está en m-hint desde updateMInfo
   if (!ref) return;
   const cap = rowCap(row.zone, ref);
   document.getElementById('m-hint').textContent = `Capacidad de esta fila para ref. ${ref}: ${cap}`;
@@ -625,59 +1042,134 @@ function updateMRefCap() {
 }
 
 async function modalConfirm() {
-  const n = parseInt(document.getElementById('m-rownum').value);
-  if (!n || n < 1 || n > TOTAL_ROWS) return;
+  const n = parseRowInput(document.getElementById('m-rownum').value);
+  if (n === null) return;
+  const qty = parseInt(document.getElementById('m-qty')?.value) || 0;
+  if (qty <= 0) { alert('Introduce una cantidad mayor que 0.'); return; }
+
+  // ── Operación en Jaula ───────────────────────────────
+  if (isCageRn(n)) {
+    ensureCageRows();
+    const cr = cageRows[n];
+
+    if (mMode === 'add') {
+      const ref = document.getElementById('m-ref')?.value;
+      if (!ref) { alert('Selecciona una referencia.'); return; }
+      let combinationKey = null;
+      if (isSpecialReference(ref)) {
+        combinationKey = document.getElementById('m-combo')?.value || null;
+        if (!combinationKey) { alert('Selecciona una combinación de base y tapa para esta referencia.'); return; }
+      }
+      const usedCnt = cr.items.reduce((s,it)=>s+it.cnt,0);
+      if (usedCnt + qty > cr.cap) { alert(`Capacidad de ${cr.jLabel} superada. Libre: ${cr.cap - usedCnt}`); return; }
+
+      const key = getStorageKey(ref, combinationKey);
+      const existing = cr.items.findIndex(it => getStorageKey(it.ref, it.combinationKey) === key);
+      if (existing >= 0) cr.items[existing].cnt += qty;
+      else cr.items.push({ ref, combinationKey, cnt: qty });
+
+      closeModal();
+      renderVisual(); renderStats(stockFromRows(), {});
+      _setTimestamp('Actualizado');
+      setStatus('saving');
+      const ok = await stockService.saveCageRow(cr);
+      if (ok) { await movementService.log({ referencia: ref, accion: 'añadir', cantidad: qty, fila_numero: n, zona: 'jaula', combination_key: combinationKey, is_cage: true }); setStatus('ok'); }
+      else setStatus('error');
+
+    } else { // sub de Jaula
+      const idx = parseInt(document.getElementById('m-cage-item-sel')?.value);
+      if (isNaN(idx)) { alert('Selecciona un item a restar.'); return; }
+      const it = cr.items[idx];
+      if (!it) return;
+      if (qty > it.cnt) { alert(`Solo hay ${it.cnt} en esa línea.`); return; }
+      const refUsada = it.ref;
+      const comboUsada = it.combinationKey;
+      it.cnt -= qty;
+      if (it.cnt === 0) cr.items.splice(idx, 1);
+
+      closeModal();
+      renderVisual(); renderStats(stockFromRows(), {});
+      _setTimestamp('Actualizado');
+      setStatus('saving');
+      const ok = await stockService.saveCageRow(cr);
+      if (ok) { await movementService.log({ referencia: refUsada, accion: 'retirar', cantidad: qty, fila_numero: n, zona: 'jaula', combination_key: comboUsada, is_cage: true }); setStatus('ok'); }
+      else setStatus('error');
+    }
+    return;
+  }
+
+  // ── Operación en fila normal ────────────────────────
   const row = rows[n];
   if (!row) return;
-  const qty = parseInt(document.getElementById('m-qty')?.value) || 0;
-  const accionActual = mMode;
   const stockAntes = row.cnt;
   let refUsada = row.ref;
 
   if (mMode === 'add') {
     let ref = row.ref;
+    let combinationKey = row.combinationKey;
+
     if (!ref) {
       ref = document.getElementById('m-ref')?.value;
-      if (!ref) return;
-      row.ref = ref; row.cap = rowCap(row.zone, ref); row.cnt = 0;
+      if (!ref) { alert('Selecciona una referencia.'); return; }
+      if (isSpecialReference(ref)) {
+        combinationKey = document.getElementById('m-combo')?.value || null;
+        if (!combinationKey) { alert('Selecciona una combinación de base y tapa para esta referencia.'); return; }
+      }
+      row.ref = ref; row.cap = rowCap(row.zone, ref); row.cnt = 0; row.combinationKey = combinationKey;
       refUsada = ref;
+    } else if (isSpecialReference(ref) && !row.combinationKey) {
+      // Datos legados: clasificar combinación
+      combinationKey = document.getElementById('m-combo')?.value || null;
+      if (!combinationKey) { alert('Selecciona una combinación de base y tapa para clasificar esta fila.'); return; }
+      row.combinationKey = combinationKey;
+    } else if (isSpecialReference(ref)) {
+      // Verificar que la combo del modal coincide
+      const selCombo = document.getElementById('m-combo')?.value || null;
+      if (selCombo && selCombo !== row.combinationKey) {
+        alert('Esta fila contiene la misma referencia, pero con otra combinación base/tapa. No se permite mezclar.');
+        return;
+      }
     }
-    if (qty <= 0) { alert('Introduce una cantidad mayor que 0.'); return; }
+
     const space = row.cap - row.cnt;
     if (qty > space) { alert(`Espacio disponible en fila ${n}: ${space}`); return; }
     row.cnt += qty;
-  } else {
+
+  } else { // sub normal
     if (!row.ref) return;
-    if (qty <= 0) { alert('Introduce una cantidad mayor que 0.'); return; }
     if (qty > row.cnt) { alert(`Solo hay ${row.cnt} contenedores en la fila ${n}.`); return; }
     row.cnt -= qty;
-    if (row.cnt === 0) { row.ref = null; row.cap = 0; }
+    if (row.cnt === 0) { row.ref = null; row.cap = 0; row.combinationKey = null; }
   }
 
   closeModal();
   const s = stockFromRows();
-  renderVisual();
-  renderStats(s, {});
-  const now = new Date();
-  document.getElementById('ts').textContent =
-    `Actualizado: ${now.toLocaleDateString('es-ES')} ${now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}`;
-
+  renderVisual(); renderStats(s, {});
+  _setTimestamp('Actualizado');
   setStatus('saving');
   const guardado = await stockService.saveRow(rows[n]);
   if (guardado) {
     await movementService.log({
       referencia: refUsada,
-      accion: accionActual === 'add' ? 'añadir' : 'retirar',
+      accion: mMode === 'add' ? 'añadir' : 'retirar',
       cantidad: qty,
       fila_numero: n,
       zona: rows[n]?.zone || row.zone,
       stock_anterior: stockAntes,
-      stock_nuevo: rows[n]?.cnt ?? 0
+      stock_nuevo: rows[n]?.cnt ?? 0,
+      combination_key: rows[n]?.combinationKey || null,
+      is_cage: false,
     });
     setStatus('ok');
   } else {
     setStatus('error');
   }
+}
+
+function _setTimestamp(prefix) {
+  const now = new Date();
+  document.getElementById('ts').textContent =
+    `${prefix}: ${now.toLocaleDateString('es-ES')} ${now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}`;
 }
 
 function stockFromRows() {
@@ -707,10 +1199,21 @@ async function loadFromSupabase(isInitial = false) {
   setStatus('loading');
   const data = await stockService.load();
   if (data && data.length > 0) {
-    initRows();
+    initNormalRows();
+    ensureCageRows();
     for (const record of data) {
-      const row = rows[record.fila_numero];
-      if (row) { row.ref = record.referencia || null; row.cnt = record.cantidad; row.cap = record.capacidad; }
+      if (isCageRn(record.fila_numero)) {
+        const cr = cageRows[record.fila_numero];
+        if (cr) cr.items = record.cage_items || [];
+      } else {
+        const row = rows[record.fila_numero];
+        if (row) {
+          row.ref = record.referencia || null;
+          row.cnt = record.cantidad;
+          row.cap = record.capacidad;
+          row.combinationKey = record.combination_key || null;
+        }
+      }
     }
     const stock = stockFromRows();
     for (const ref of ORDER) {
@@ -720,17 +1223,179 @@ async function loadFromSupabase(isInitial = false) {
     renderVisual();
     renderStats(stock, {});
     setStatus('ok');
-    const now = new Date();
-    document.getElementById('ts').textContent =
-      `${isInitial ? 'Cargado' : 'Actualizado'}: ${now.toLocaleDateString('es-ES')} ${now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}`;
+    _setTimestamp(isInitial ? 'Cargado' : 'Actualizado');
   } else if (isInitial) {
-    initRows();
+    initNormalRows();
+    ensureCageRows();
     renderVisual();
     renderStats({}, {});
-    setStatus('empty');
+    setStatus(stockService.lastError ? 'error' : 'empty', stockService.lastError);
   } else {
-    setStatus('error');
+    setStatus('error', stockService.lastError);
   }
+}
+
+// ═══════════════════════════════════════════════════════
+// SUGERIR UBICACIÓN
+// ═══════════════════════════════════════════════════════
+
+let _lastSuggestion = null; // guarda sugerencia para aplicar
+
+function suggestStorageLocations(ref, quantity, combinationKey) {
+  const key = getStorageKey(ref, combinationKey);
+  const result = [];
+  let remaining = quantity;
+
+  // Paso 1: Completar filas incompletas de misma ref+combo (en cualquier zona normal)
+  for (const rn of normalRowOrder()) {
+    if (remaining <= 0) break;
+    const row = rows[rn];
+    if (!row || row.ref === null) continue;
+    if (getStorageKey(row.ref, row.combinationKey) !== key) continue;
+    const space = row.cap - row.cnt;
+    if (space <= 0) continue;
+    const place = Math.min(remaining, space);
+    result.push({ type: 'complete', rn, place, rowLabel: 'F' + rn, zone: row.zone });
+    remaining -= place;
+  }
+
+  // Paso 2: Abrir filas vacías siguiendo orden de llenado
+  for (const rn of normalRowOrder()) {
+    if (remaining <= 0) break;
+    const row = rows[rn];
+    if (!row || row.ref !== null) continue;
+    const cap = rowCap(row.zone, ref);
+    const place = Math.min(remaining, cap);
+    result.push({ type: 'open', rn, place, rowLabel: 'F' + rn, zone: row.zone });
+    remaining -= place;
+  }
+
+  return { suggestions: result, unplaced: remaining };
+}
+
+function openSuggestModal() {
+  if (rows.length <= 1) { alert('Primero pulsa Distribución automática para inicializar el almacén.'); return; }
+  _lastSuggestion = null;
+  document.getElementById('s-apply').style.display = 'none';
+  document.getElementById('s-calc').style.display = '';
+
+  document.getElementById('stitle').innerHTML = `
+    <div style="font-size:1rem;font-weight:700;color:#1565c0;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+      🗺 Sugerir ubicación
+    </div>`;
+
+  document.getElementById('sbody').innerHTML = `
+    <div class="mfld" style="margin-bottom:10px">
+      <label>Referencia</label>
+      <select id="s-ref" onchange="updateSuggestCombo()" style="width:100%;padding:8px 10px;border:2px solid #e0e0e0;border-radius:6px;font-size:.9rem">
+        <option value="">Selecciona referencia…</option>
+        ${ORDER.map(r=>`<option value="${r}">${r} · ${REFS[r].label}</option>`).join('')}
+      </select>
+    </div>
+    <div id="s-combogroup" class="mfld" style="display:none;margin-bottom:10px">
+      <label>Combinación base / tapa</label>
+      <select id="s-combo" style="width:100%;padding:8px 10px;border:2px solid #e0e0e0;border-radius:6px;font-size:.9rem">
+        <option value="">Selecciona combinación…</option>
+        ${Object.entries(BASE_TAPA_COMBINATIONS).map(([k,c])=>`<option value="${k}">${c.label}</option>`).join('')}
+      </select>
+    </div>
+    <div class="mfld">
+      <label>Cantidad (palets/bases o unidades)</label>
+      <input type="number" id="s-qty" min="1" placeholder="0"
+        style="width:100%;padding:8px 10px;border:2px solid #e0e0e0;border-radius:6px;font-size:.95rem;text-align:center">
+    </div>`;
+
+  document.getElementById('sresult').innerHTML = '';
+  document.getElementById('soverlay').classList.add('open');
+}
+
+function closeSuggestModal() {
+  document.getElementById('soverlay').classList.remove('open');
+  _lastSuggestion = null;
+}
+
+function updateSuggestCombo() {
+  const ref = document.getElementById('s-ref')?.value;
+  const cg  = document.getElementById('s-combogroup');
+  if (cg) cg.style.display = (ref && isSpecialReference(ref)) ? 'block' : 'none';
+}
+
+function runSuggest() {
+  const ref = document.getElementById('s-ref')?.value;
+  if (!ref) { alert('Selecciona una referencia.'); return; }
+  let combinationKey = null;
+  if (isSpecialReference(ref)) {
+    combinationKey = document.getElementById('s-combo')?.value || null;
+    if (!combinationKey) { alert('Selecciona una combinación de base y tapa.'); return; }
+  }
+  const qty = parseInt(document.getElementById('s-qty')?.value) || 0;
+  if (qty <= 0) { alert('Introduce una cantidad mayor que 0.'); return; }
+
+  const { suggestions, unplaced } = suggestStorageLocations(ref, qty, combinationKey);
+  _lastSuggestion = { ref, qty, combinationKey, suggestions };
+
+  const comboText = combinationKey
+    ? `· <span class="combo-badge ${combClass(combinationKey)}">${combLabel(combinationKey)}</span>`
+    : '';
+  let html = `<div style="font-size:.75rem;font-weight:700;color:#1565c0;margin-bottom:8px">
+    Sugerencia para <strong>${ref}</strong> ${comboText} · <strong>${qty}</strong> uds:
+  </div>`;
+
+  if (suggestions.length === 0) {
+    html += `<div class="obs obs-error"><span class="obs-ico">⚠️</span><span>No hay filas disponibles en zonas normales para esta referencia.</span></div>`;
+    _lastSuggestion = null;
+  } else {
+    suggestions.forEach((sg, i) => {
+      const zname = gz(sg.zone)?.name || sg.zone;
+      const action = sg.type === 'complete' ? 'Completar' : 'Abrir';
+      html += `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:.77rem">
+        <span style="color:#888;min-width:16px">${i+1}.</span>
+        <strong>${action} ${sg.rowLabel}</strong>
+        <span style="color:#666">(${zname})</span>
+        <span>→ <strong>${sg.place}</strong> uds</span>
+      </div>`;
+    });
+    if (unplaced > 0) {
+      html += `<div class="obs obs-error" style="margin-top:6px"><span class="obs-ico">⚠️</span><span>Sin ubicación para <strong>${unplaced}</strong> unidades. Capacidad insuficiente en zonas normales.</span></div>`;
+    }
+  }
+
+  document.getElementById('sresult').innerHTML = html;
+  document.getElementById('s-apply').style.display = suggestions.length > 0 ? '' : 'none';
+}
+
+async function applySuggestion() {
+  if (!_lastSuggestion || _lastSuggestion.suggestions.length === 0) return;
+  const { ref, combinationKey, suggestions } = _lastSuggestion;
+  closeSuggestModal();
+  setStatus('saving');
+
+  for (const sg of suggestions) {
+    const row = rows[sg.rn];
+    if (!row) continue;
+    const stockAntes = row.cnt;
+    if (row.ref === null) {
+      row.ref = ref; row.cap = rowCap(row.zone, ref); row.cnt = 0; row.combinationKey = combinationKey;
+    }
+    row.cnt += sg.place;
+    await stockService.saveRow(row);
+    await movementService.log({
+      referencia: ref, accion: 'añadir', cantidad: sg.place,
+      fila_numero: sg.rn, zona: row.zone,
+      stock_anterior: stockAntes, stock_nuevo: row.cnt,
+      combination_key: combinationKey, is_cage: false,
+    });
+  }
+
+  const s = stockFromRows();
+  for (const r of ORDER) {
+    const inp = document.getElementById('i_' + r);
+    if (inp) { inp.value = s[r] || 0; inp.style.borderColor = s[r] > 0 ? REFS[r].color : '#e0e0e0'; }
+  }
+  renderVisual(); renderStats(s, {});
+  _setTimestamp('Actualizado');
+  setStatus('ok');
+  _lastSuggestion = null;
 }
 
 // Carga inicial desde Supabase
